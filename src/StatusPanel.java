@@ -16,14 +16,14 @@ public class StatusPanel {
      * @param timescaleMultiplier The timescale in which the game is being run at
      * @param currentStatus The current status of the game
      */
-    public void updateStatusPanel(Player player, WaveEvent currentWave, int timescaleMultiplier, String currentStatus) {
+    public void updateStatusPanel(Player player, int currentWave, int timescaleMultiplier, String currentStatus) {
         String text;
         Colour timescaleMultiplierColour;
         DrawOptions textColour = new DrawOptions();
         STATUS_PANEL.draw(Window.getWidth()/2.0, Window.getHeight() - 12.5);
 
         //Display the current wave
-        text  = String.format("Wave: %d", currentWave.getWave());
+        text  = String.format("Wave: %d", currentWave);
         FONT.drawString(text,10, Window.getHeight()-6.25);
 
         //Display the current timescale, if timescale has been increase, draw it in green

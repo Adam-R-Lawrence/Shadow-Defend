@@ -9,7 +9,7 @@ public class Projectile {
     private double projectilePositionX;
     private double projectilePositionY;
     private final double angleToShootAt;
-
+    private Rectangle projectileBoundingBox;
 
     private Point currentPosition;
 
@@ -19,8 +19,14 @@ public class Projectile {
         this.angleToShootAt = angleToShootAt;
         this.projectileType = projectileType;
 
-        currentPosition = new Point(projectilePositionX,projectilePositionY);
 
+        currentPosition = new Point(projectilePositionX,projectilePositionY);
+        projectileBoundingBox = (projectileType.getBoundingBoxAt(currentPosition));
+
+    }
+
+    public Rectangle getProjectileBoundingBox() {
+        return projectileBoundingBox;
     }
 
 
@@ -34,6 +40,8 @@ public class Projectile {
 
 
         currentPosition = new Point(projectilePositionX,projectilePositionY);
+        projectileBoundingBox = (projectileType.getBoundingBoxAt(currentPosition));
+
     }
 
     public void drawProjectile(){

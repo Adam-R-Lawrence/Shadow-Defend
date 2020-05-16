@@ -53,16 +53,19 @@ public abstract class Tower{
         double closestDistanceAway = attackRadius,magnitude,angle;
         for(Slicer s: currentSlicers){
             if(s!= null) {
-                if(s.getWhereToMove() != null) {
-                    if (rangeBoundingBox.intersects(s.getWhereToMove())) {
+                if(s.futureMove(timescaleMultiplier) != null) {
+                    if (rangeBoundingBox.intersects(s.futureMove(timescaleMultiplier))) {
+                        System.out.println(s.getWhereToMove());
+                        System.out.println(s.futureMove(timescaleMultiplier));
+
                         //Find the Magnitude and round it down to the nearest integer.
-                        magnitude = Math.sqrt(Math.pow(s.getWhereToMove().x - tankPosition.x, 2)
-                                + Math.pow(s.getWhereToMove().y - tankPosition.y, 2));
+                        magnitude = Math.sqrt(Math.pow(s.futureMove(timescaleMultiplier).x - tankPosition.x, 2)
+                                + Math.pow(s.futureMove(timescaleMultiplier).y - tankPosition.y, 2));
 
 
                         if (magnitude < closestDistanceAway) {
                             closestDistanceAway = magnitude;
-                            whereToAttack = s.getWhereToMove();
+                            whereToAttack = s.futureMove(timescaleMultiplier);
                         }
                     }
                 }

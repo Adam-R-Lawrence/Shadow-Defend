@@ -17,6 +17,7 @@ public class ShadowDefend extends AbstractGame {
     private static final String TITLE = "ShadowDefend";
     private static final String TMX_FILE = "res/levels/1.tmx";
     private static final String WAVE_EVENT_FILE = "res/levels/waves.txt";
+    private final int numberOfWaves;
     private final TiledMap gameMap;
     private int timescaleMultiplier;
     private EnemyWave slicerWave;
@@ -34,6 +35,9 @@ public class ShadowDefend extends AbstractGame {
     private final List<Tower> tanks;
     private final List<WaveEvent> waveEvents;
     int waveStatus;
+    List<EnemyWave> slicerWaveEvent;
+    private List<Slicer> currentEnemies;
+
 
     public ShadowDefend() {
         super(WIDTH, HEIGHT, TITLE);
@@ -89,6 +93,9 @@ public class ShadowDefend extends AbstractGame {
         currentStatus = "Awaiting Start";
         airplanes = new ArrayList<>();
         tanks = new ArrayList<>();
+        currentEnemies = new ArrayList<>();
+        slicerWaveEvent = new ArrayList<>();
+        numberOfWaves = waveEvents.get(waveEvents.size()-1).getWave();
     }
 
     public static void main(String[] args) {
@@ -141,7 +148,7 @@ public class ShadowDefend extends AbstractGame {
             towerSelected = test;
         }
 
-        statusPanel.updateStatusPanel(player, currentWaveEvent, timescaleMultiplier, currentStatus);
+        statusPanel.updateStatusPanel(player, waveNumber, timescaleMultiplier, currentStatus);
 
 
         if(!towerSelected.equals("NO TOWER SELECTED")&& !gameMap.hasProperty((int) mousePosition.x,(int) mousePosition.y,"blocked")){
@@ -181,7 +188,7 @@ public class ShadowDefend extends AbstractGame {
 
         //If 'S' is pressed start a new enemy wave
         if (input.wasPressed(Keys.S) && !isEnemyWave) {
-            slicerWave = new EnemyWave(currentWaveEvent.getNumberToSpawn(),currentWaveEvent.getEnemyType());
+            slicerWaveEvent.add(new EnemyWave(currentWaveEvent.getNumberToSpawn(),currentWaveEvent.getEnemyType()));
             isEnemyWave = true;
             waveNumber = currentWaveEvent.getWave();
             currentStatus = "Wave in Progress";
@@ -199,58 +206,101 @@ public class ShadowDefend extends AbstractGame {
             }
         }
 
-        if (delay != 0) {
-            delay--;
-            waveStatus = 2;
-        } else {
-            //Move all the enemies on the screen to their next point
-            if (slicerWave != null) {
-                if(waveStatus == 0) {
-                    waveStatus = slicerWave.nextWaveFrame(gameMap, timescaleMultiplier, player, tanks, airplanes, currentWaveEvent);
+
+        int k;
+
+        if(!slicerWaveEvent.isEmpty()){
+            k=0;
+            int currentSize = slicerWaveEvent.size();
+            for(EnemyWave s: slicerWaveEvent) {
+                waveStatus = 0;
+
+
+                if(s.getDelay() != 0){
+                    s.setDelay(s.getDelay() - 1);
+
+                    System.out.println(s.getDelay());
+                    if(s.getDelay() == 0){
+                        waveStatus = 1;
+                        slicerWaveEvent.set(k,null);
+                    }
+                } else {
+
+                    //If wave status is 0, do nothing
+                    //If wave status is 1, that means all slicers have spawned
+                    //If wave status is 2, that means all slicers of that wave event have either died or reached the end
+                    waveStatus = s.nextWaveFrame(gameMap, timescaleMultiplier, player, tanks, airplanes, currentWaveEvent,currentEnemies);
                 }
 
-                //Check if Wave Event is Finished
-                if (waveStatus != 0) {
+                if(waveStatus == 1){
+
+
+                    //delay = waveEvents.get(passedWaveEvents).getSpawnDelay();
+
                     passedWaveEvents++;
-
-                    if (passedWaveEvents > 20) {
-                        currentStatus = "Winner!";
+                    if(passedWaveEvents == waveEvents.size()){
+                        break;
                     }
-                    else {
-                        currentWaveEvent = waveEvents.get(passedWaveEvents);
-                        if (currentWaveEvent.getWave() != waveNumber) {
-                            player.endOfWaveReward(waveNumber);
-                            slicerWave = null;
-                            isEnemyWave = false;
-                            waveNumber = currentWaveEvent.getWave();
 
-                            for(Tower s: tanks){
-                               s.getCurrentProjectiles().clear();
-                               s.getCurrentProjectiles().removeAll(Collections.singleton(null));
-                            }
+                    currentWaveEvent = waveEvents.get(passedWaveEvents);
+                    if(currentWaveEvent.getWave() == waveNumber) {
 
-                            if (!currentStatus.equalsIgnoreCase("Winner!") && !currentStatus.equalsIgnoreCase("Placing") ) {
-                                currentStatus = "Awaiting Start";
-                            }
+                        if (currentWaveEvent.getEventType().equalsIgnoreCase("spawn")) {
+
+                            slicerWaveEvent.add(new EnemyWave(currentWaveEvent.getNumberToSpawn(), currentWaveEvent.getEnemyType()));
                         } else {
 
-                            if (currentWaveEvent.getEventType().equalsIgnoreCase("spawn")) {
+                            slicerWaveEvent.add(new EnemyWave(currentWaveEvent, timescaleMultiplier));
 
-                                slicerWave = new EnemyWave(currentWaveEvent.getNumberToSpawn(),currentWaveEvent.getEnemyType());
-
-                            } else {
-                                delay = (int) Math.ceil((currentWaveEvent.getSpawnDelay()) * (60 / 1000.0));
-                            }
                         }
                     }
-                    waveStatus = 0;
+                } else if(waveStatus == 2){
+                  //  System.out.println("TEST2");
+
+                    slicerWaveEvent.set(k,null);
+
+                }
+
+
+                k++;
+                if(k == currentSize){
+                    break;
+                }
+            }
+
+
+            slicerWaveEvent.removeAll(Collections.singleton(null));
+
+
+
+           // System.out.println("TEST5");
+
+            if(slicerWaveEvent.isEmpty()){
+
+
+                if (passedWaveEvents > (waveEvents.size() - 1)) {
+                    currentStatus = "Winner!";
+                } else {
+                    player.endOfWaveReward(waveNumber);
+                    isEnemyWave = false;
+                    waveNumber = currentWaveEvent.getWave();
+
+                    for (Tower s : tanks) {
+                        s.getCurrentProjectiles().clear();
+                        s.getCurrentProjectiles().removeAll(Collections.singleton(null));
+                    }
+
+                    if (!currentStatus.equalsIgnoreCase("Winner!") && !currentStatus.equalsIgnoreCase("Placing")) {
+                        currentStatus = "Awaiting Start";
+                    }
+
                 }
             }
         }
         for (Tower s : tanks) {
             if(isEnemyWave) {
-                assert slicerWave != null;
-                s.updateTank(slicerWave.getEnemiesInWave(),timescaleMultiplier);
+                //assert slicerWave != null;
+                s.updateTank(currentEnemies,timescaleMultiplier);
             }else {
                 s.updateTank();
             }

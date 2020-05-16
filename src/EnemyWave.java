@@ -16,7 +16,7 @@ public class EnemyWave {
 
     //To track how many frames since the wave has started
     private int frameCounter;
-     private final List<Slicer> enemiesInWave;
+    //private final List<Slicer> enemiesInWave;
     private int numberOfEnemiesSpawned;
     private final int numberOfEnemiesInWave;
     private int currentNumberOfEnemies;
@@ -25,6 +25,10 @@ public class EnemyWave {
     //private final static int FRAMES_BETWEEN_ENEMIES = SECONDS_BETWEEN_ENEMIES * FRAMES_IN_A_SECOND;
     private final String enemyType;
 
+
+    private int delay;
+
+
     //Enemy Wave constructor
     protected EnemyWave(int numberOfEnemiesInWave, String enemyType) {
         this.numberOfEnemiesInWave = numberOfEnemiesInWave;
@@ -32,15 +36,33 @@ public class EnemyWave {
 
         frameCounter = 0;
         numberOfEnemiesSpawned = 0;
-        enemiesInWave = new ArrayList<>();
+        //enemiesInWave = new ArrayList<>();
         currentNumberOfEnemies = 0;
         this.enemyType = enemyType;
+        delay = 0;
+    }
+
+    protected EnemyWave(WaveEvent waveEvent, int timescaleMultiplier) {
+        this.numberOfEnemiesInWave = 0;
+        frameCounter = 0;
+        numberOfEnemiesSpawned = 0;
+        currentNumberOfEnemies = 0;
+        this.enemyType = null;
+        //enemiesInWave = null;
+        delay = (int) ((waveEvent.getSpawnDelay() * (60 / 1000.0))/timescaleMultiplier);
+
     }
 
 
-    public List<Slicer> getEnemiesInWave() {
-        return enemiesInWave;
+
+    public int getDelay() {
+        return delay;
     }
+
+    public void setDelay(int delay) {
+        this.delay = delay;
+    }
+
 
 
     /**
@@ -50,7 +72,7 @@ public class EnemyWave {
      * @param map The game's tilemap
      * @param timescaleMultiplier The current time multiplayer of the game
      */
-    public int nextWaveFrame(TiledMap map, int timescaleMultiplier, Player player, List<Tower> tanks, List<Airplane> airplanes, WaveEvent waveEvent) {
+    public int nextWaveFrame(TiledMap map, int timescaleMultiplier, Player player, List<Tower> tanks, List<Airplane> airplanes, WaveEvent waveEvent, List<Slicer> enemiesInWave) {
 
         //Check if its time to spawn in another enemy
         for(int i = 0; i < timescaleMultiplier; i++) {
@@ -75,6 +97,13 @@ public class EnemyWave {
 
                 numberOfEnemiesSpawned++;
                 currentNumberOfEnemies++;
+
+
+                if(numberOfEnemiesSpawned == numberOfEnemiesInWave){
+                    System.out.print(numberOfEnemiesSpawned);
+                    System.out.println(numberOfEnemiesInWave);
+                    return 1;
+                }
             }
             frameCounter++;
         }
@@ -86,7 +115,7 @@ public class EnemyWave {
 
                     waveStatus = enemiesInWave.get(i).nextMove(timescaleMultiplier, i, numberOfEnemiesInWave, tanks, airplanes);
                     if (waveStatus == 1) {
-                        return waveStatus;
+                        return 2;
                     }
 
                     if (waveStatus == 2) {
@@ -133,7 +162,7 @@ public class EnemyWave {
         }
 
         if ((currentNumberOfEnemies == 0) &&  (numberOfEnemiesInWave == numberOfEnemiesSpawned)) {
-            return 1;
+            return 2;
         }
 
         return 0;
