@@ -11,21 +11,20 @@ import java.util.List;
  */
 public class EnemyWave {
 
-    //enemiesInWave is protected thus so it can be instantiated with subclass specific enemies
-    //protected Slicer[] enemiesInWave;
+
 
     //To track how many frames since the wave has started
     private int frameCounter;
     //private final List<Slicer> enemiesInWave;
     private int numberOfEnemiesSpawned;
-    private final int numberOfEnemiesInWave;
+    private int numberOfEnemiesInWave;
     private int currentNumberOfEnemies;
     private final static int FRAMES_IN_A_SECOND = 60;
     //private final static int SECONDS_BETWEEN_ENEMIES = 5;
     //private final static int FRAMES_BETWEEN_ENEMIES = SECONDS_BETWEEN_ENEMIES * FRAMES_IN_A_SECOND;
-    private final String enemyType;
+    private String enemyType;
 
-
+    private int spawnDelay;
     private int delay;
 
 
@@ -39,7 +38,6 @@ public class EnemyWave {
         //enemiesInWave = new ArrayList<>();
         currentNumberOfEnemies = 0;
         this.enemyType = enemyType;
-        delay = 0;
     }
 
     protected EnemyWave(WaveEvent waveEvent, int timescaleMultiplier) {
@@ -65,6 +63,15 @@ public class EnemyWave {
 
 
 
+
+    public void addWaveEvent(WaveEvent waveEvent){
+
+        numberOfEnemiesInWave = numberOfEnemiesInWave + waveEvent.getNumberToSpawn();
+        spawnDelay = waveEvent.getSpawnDelay();
+        enemyType = waveEvent.getEnemyType();
+    }
+
+
     /**
      *
      * Method to update the wave, i.e. let enemies move to their next position
@@ -74,6 +81,7 @@ public class EnemyWave {
      */
     public int nextWaveFrame(TiledMap map, int timescaleMultiplier, Player player, List<Tower> tanks, List<Airplane> airplanes, WaveEvent waveEvent, List<Slicer> enemiesInWave) {
 
+        int test = 0;
         //Check if its time to spawn in another enemy
         for(int i = 0; i < timescaleMultiplier; i++) {
             if ((frameCounter) % ( (int) (FRAMES_IN_A_SECOND * (waveEvent.getSpawnDelay()/1000.0) ))
@@ -100,9 +108,8 @@ public class EnemyWave {
 
 
                 if(numberOfEnemiesSpawned == numberOfEnemiesInWave){
-                    System.out.print(numberOfEnemiesSpawned);
-                    System.out.println(numberOfEnemiesInWave);
-                    return 1;
+
+                    test = 1;
                 }
             }
             frameCounter++;
@@ -110,7 +117,7 @@ public class EnemyWave {
 
         int waveStatus;
         //Update all the current Enemies
-        for(int i = 0 ; i < currentNumberOfEnemies; i++) {
+        for(int i = 0 ; i < enemiesInWave.size(); i++) {
                 if(enemiesInWave.get(i)!=null) {
 
                     waveStatus = enemiesInWave.get(i).nextMove(timescaleMultiplier, i, numberOfEnemiesInWave, tanks, airplanes);
@@ -124,7 +131,6 @@ public class EnemyWave {
                     }
 
                     if (waveStatus == 3) {
-                        //System.out.println(enemiesInWave.get(i).getPolylinePointsPassed());
 
 
                         switch (enemiesInWave.get(i).getEnemyType()) {
@@ -156,15 +162,16 @@ public class EnemyWave {
 
 
                     }
-                    enemiesInWave.removeAll(Collections.singleton(null));
 
                 }
         }
 
-        if ((currentNumberOfEnemies == 0) &&  (numberOfEnemiesInWave == numberOfEnemiesSpawned)) {
+        enemiesInWave.removeAll(Collections.singleton(null));
+
+
+        if ((enemiesInWave.size() == 0) &&  (numberOfEnemiesInWave == numberOfEnemiesSpawned)) {
             return 2;
         }
-
-        return 0;
+        return test;
     }
 }

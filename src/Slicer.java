@@ -105,6 +105,7 @@ public abstract class Slicer {
      */
     public int nextMove( int timescaleMultiplier, int enemyNumber, int numberOfEnemiesInWave, List<Tower> tanks, List<Airplane> airplanes){
 
+        System.out.println(String.format("Speed: %f Timescale Multiplier: %d",speed,timescaleMultiplier));
         Point currentPolylinePoint;
         Point nextPolylinePoint;
         double xDistanceApart, yDistanceApart;
