@@ -1,13 +1,13 @@
 public class WaveEvent {
 
-    private final int wave;
+    private final int waveNumber;
     private int numberToSpawn;
     private String enemyType;
     private final int spawnDelay;
     private final String eventType;
 
-    public WaveEvent(int wave, int numberToSpawn, String enemyType, int spawnDelay) {
-        this.wave = wave;
+    public WaveEvent(int waveNumber, int numberToSpawn, String enemyType, int spawnDelay) {
+        this.waveNumber = waveNumber;
         this.numberToSpawn = numberToSpawn;
         this.enemyType = enemyType;
         this.spawnDelay = spawnDelay;
@@ -15,14 +15,14 @@ public class WaveEvent {
     }
 
 
-    public WaveEvent(int wave, int spawnDelay) {
-        this.wave = wave;
+    public WaveEvent(int waveNumber, int spawnDelay) {
+        this.waveNumber = waveNumber;
         this.spawnDelay = spawnDelay;
         eventType = "delay";
     }
 
-    public int getWave() {
-        return wave;
+    public int getWaveNumber() {
+        return waveNumber;
     }
 
     public int getNumberToSpawn() {

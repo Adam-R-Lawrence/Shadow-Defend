@@ -10,17 +10,17 @@ public class Explosive {
     private static final int BLAST_RADIUS = 200;
     private static final int DETONATE_TIMER = 2;
 
-    private final int damage = 500;
+    private final static int EXPLOSIVE_DAMAGE = 500;
     private int frameCounter;
     private final Point pointToDrop;
     private int delete;
 
-    private  Rectangle explosionBounds;
+    private Rectangle explosionBounds;
 
 
 
     public int getDamage() {
-        return damage;
+        return EXPLOSIVE_DAMAGE;
     }
 
 

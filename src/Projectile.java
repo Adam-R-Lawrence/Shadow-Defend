@@ -49,7 +49,4 @@ public class Projectile {
 
     }
 
-    public Point getCurrentPosition() {
-        return currentPosition;
-    }
 }

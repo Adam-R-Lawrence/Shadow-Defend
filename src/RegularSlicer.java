@@ -12,7 +12,6 @@ import java.util.List;
 public class RegularSlicer extends Slicer {
 
     private final static Image SLICER_PNG = new Image("res/images/slicer.png");
-
     private final static int HEALTH = 1;
     private final static double SPEED = 2;
     private final static int REWARD = 2;

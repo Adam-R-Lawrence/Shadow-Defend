@@ -13,7 +13,6 @@ public class Airplane {
     private static final int PIXELS_PER_FRAME = 5;
     private static String nextDirection = "Horizontally";
     private final String currentDirection;
-    private Rectangle boundingBox;
     private double currentPositionX;
     private double currentPositionY;
     private int randomNumFrames = 0;
@@ -24,7 +23,6 @@ public class Airplane {
 
         player.decreaseMoney(PRICE);
         currentDirection = nextDirection;
-        //currentPosition = new Point(200,400);
         currentPositionX = whereToFly.x;
         currentPositionY = whereToFly.y;
         if (nextDirection.equals("Horizontally")){

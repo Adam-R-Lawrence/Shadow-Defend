@@ -23,7 +23,7 @@ public class BuyPanel {
     private static final int AIRPLANE_PRICE = 500;
 
 
-    public String updateBuyPanel(Player player, Point mousePosition, Boolean wasLeftButtonPressed) {
+    public String updateBuyPanel(Player player, Point mousePosition, boolean wasLeftButtonPressed) {
         DrawOptions textColour = new DrawOptions();
         Colour fontColour;
 

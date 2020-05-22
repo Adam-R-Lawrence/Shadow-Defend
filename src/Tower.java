@@ -17,7 +17,7 @@ public abstract class Tower{
     private int frameCounter;
     private double currentTankRotation;
 
-    private List<Projectile> currentProjectiles;
+    private final List<Projectile> currentProjectiles;
 
 
     public Tower(Point tankPosition, int damage, int attackRadius, int projectileCooldown, Image towerImage, Image projectileType){
@@ -114,7 +114,7 @@ public abstract class Tower{
 
     }
 
-    public void updateTank() {
+    public void updateStationaryTank() {
         DrawOptions rotator = new DrawOptions();
         towerImage.draw(tankPosition.x,tankPosition.y, rotator.setRotation(currentTankRotation));
     }
