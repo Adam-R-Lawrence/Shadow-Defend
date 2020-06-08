@@ -9,25 +9,22 @@ import java.util.List;
 /**
  * @author arlawrence
  *
- * Enemy Superclass
- *
+ * Slicer Superclass
  */
 public abstract class Slicer {
 
-    private final Image enemyPNG;
-    private int polylinePointsPassed;
-    private int movementsDone;
+
     private final static int FULL_CIRCLE_ANGLE = 360;
     private final static int EIGHTH_ANGLE = FULL_CIRCLE_ANGLE/8;
     private final static double SIXTEENTH_ANGLE = FULL_CIRCLE_ANGLE/16.0;
     private final static double RADIANS_CONVERTER = Math.PI/180;
-
-
-    private Point currentPosition;
     private final static Image SLICER = new Image("res/images/slicer.png");
 
+    private final Image enemyPNG;
+    private int polylinePointsPassed;
+    private int movementsDone;
+    private Point currentPosition;
     private Point whereToMove;
-
     private int health;
     private final double speed;
     private final int reward;
@@ -35,14 +32,19 @@ public abstract class Slicer {
     private Rectangle boundingBox;
     private final Player player;
     private final String enemyType;
-
     List<Point> polyline;
 
 
     /**
-     * Enemy Constructor
+     * Constructor for a slicer
      *
-     * @param polyline The Map's polyline
+     * @param polyline The Slicer's path through the map
+     * @param slicerPNG The calling subclass's Slicer PNG
+     * @param health The calling subclass's health
+     * @param speed The calling subclass's speed
+     * @param reward The calling subclass's reward on death
+     * @param penalty The calling subclass's penalty on reaching the end of the polyline
+     * @param player The current player playing the game
      */
     protected Slicer(List<Point> polyline, Image slicerPNG, int health, double speed, int reward, int penalty, Player player) {
         //Set the Enemy position to its starting point
@@ -55,13 +57,25 @@ public abstract class Slicer {
         this.player = player;
 
         currentPosition = polyline.get(0);
-
         movementsDone = 0;
         polylinePointsPassed = 1;
-
         enemyType = getClass().getName();
     }
 
+    /**
+     * Constructor for a Slicer which has spawned from a dead slicer
+     *
+     * @param polyline The Slicer's path through the map
+     * @param slicerPNG The calling subclass's Slicer PNG
+     * @param health The calling subclass's health
+     * @param speed The calling subclass's speed
+     * @param reward The calling subclass's reward on death
+     * @param penalty The calling subclass's penalty on reaching the end of the polyline
+     * @param player The current player playing the game
+     * @param whereParentDied The position where its' parent died
+     * @param movementsParentDid the amount of movements the parent did
+     * @param polylinePointsPassed The amount of polylines passed by it's parent
+     */
     protected Slicer(List<Point> polyline, Image slicerPNG, int health, double speed, int reward, int penalty, Player player, Point whereParentDied, int movementsParentDid, int polylinePointsPassed) {
         //Set the Enemy position to its starting point
         this.health = health;
@@ -78,32 +92,55 @@ public abstract class Slicer {
         movementsDone = movementsParentDid;
         this.polylinePointsPassed = polylinePointsPassed;
         enemyType = getClass().getName();
-
     }
 
-
+    /**
+     * Getter for how many movements this slicer has done between two polyline points
+     *
+     * @return The number of movements
+     */
     public int getMovementsDone() {
         return movementsDone;
     }
 
-
+    /**
+     * Getter for where the slicer needs to move next
+     *
+     * @return The position for where the slicer needs to move
+     */
     public Point getWhereToMove() {
-        return whereToMove;
+        return whereToMove ;
     }
 
+    /**
+     * Getter for the Enemy Type of this particular slicer
+     *
+     * @return The subclass's enemy type
+     */
     public String getEnemyType() {
         return enemyType;
     }
 
+    /**
+     * Getter for how many polylines points this slicer has passed
+     *
+     * @return the number of points passed
+     */
+    public int getPolylinePointsPassed() {
+        return polylinePointsPassed;
+    }
 
     /**
+     * This moves the Slicer into its next position in the polyline
      *
-     * This moves the Enemy into its next position in the polyline
-     *
-     * @param timescaleMultiplier The current time multiplayer of the game
-     * @param enemyNumber The identity of the current enemy being moved
+     * @param timescaleMultiplier The current timescale of the game
+     * @param enemyNumber The unique ID for the slicer out of all current slicers
+     * @param numberOfEnemiesInWave How many enemies are currently in the wave
+     * @param tanks List of all the current Active Towers
+     * @param airplanes List of all the current Airplanes
+     * @return the status of the slicer
      */
-    public int nextMove( int timescaleMultiplier, int enemyNumber, int numberOfEnemiesInWave, List<Tower> tanks, List<Airplane> airplanes){
+    public int nextMove(int timescaleMultiplier, int enemyNumber, int numberOfEnemiesInWave, List<ActiveTower> tanks, List<Airplane> airplanes){
 
         Point currentPolylinePoint;
         Point nextPolylinePoint;
@@ -112,7 +149,7 @@ public abstract class Slicer {
 
 
         //Find the next place to move along the polyline, maximum of 1px
-        for(int i = 0; i < timescaleMultiplier * speed; i++) {
+        for(int i = 0; i < timescaleMultiplier; i++) {
             if(polyline.size() != polylinePointsPassed) {
                 nextPolylinePoint = polyline.get(polylinePointsPassed);
                 currentPolylinePoint = polyline.get(polylinePointsPassed - 1);
@@ -120,7 +157,7 @@ public abstract class Slicer {
                 //Find the Magnitude and round it down to the nearest integer.
                 double magnitude = Math.sqrt(Math.pow(nextPolylinePoint.x - currentPolylinePoint.x, 2)
                         + Math.pow(nextPolylinePoint.y - currentPolylinePoint.y, 2));
-                int numberOfStepsNeeded = (int) ((Math.floor(magnitude)));
+                int numberOfStepsNeeded = (int) ((Math.floor(magnitude)) / speed);
 
                 if (movementsDone != numberOfStepsNeeded) {
                     xDistanceApart = nextPolylinePoint.x - currentPolylinePoint.x;
@@ -170,7 +207,13 @@ public abstract class Slicer {
         return 0;
     }
 
-
+    /**
+     * Return the future move of the slicer
+     * (To be used for the Active Tower's Shooting Algorithm)
+     *
+     * @param timescaleMultiplier The current time scale of the game
+     * @return The point where the slicer will move to in the future
+     */
     public Point futureMove( int timescaleMultiplier) {
         Point currentPolylinePoint;
         Point nextPolylinePoint;
@@ -183,7 +226,7 @@ public abstract class Slicer {
         Point futurePosition = currentPosition;
 
         //Find the next place to move along the polyline, maximum of 1px
-        for (int i = 0; i < timescaleMultiplier * speed; i++) {
+        for (int i = 0; i < timescaleMultiplier; i++) {
             if (polyline.size() != tempPolyLinesPassed) {
                 nextPolylinePoint = polyline.get(tempPolyLinesPassed);
                 currentPolylinePoint = polyline.get(tempPolyLinesPassed - 1);
@@ -191,7 +234,7 @@ public abstract class Slicer {
                 //Find the Magnitude and round it down to the nearest integer.
                 double magnitude = Math.sqrt(Math.pow(nextPolylinePoint.x - currentPolylinePoint.x, 2)
                         + Math.pow(nextPolylinePoint.y - currentPolylinePoint.y, 2));
-                int numberOfStepsNeeded = (int) ((Math.floor(magnitude)));
+                int numberOfStepsNeeded = (int) ((Math.floor(magnitude)) / speed);
 
                 if (futureMovementsDone != numberOfStepsNeeded) {
                     xDistanceApart = nextPolylinePoint.x - currentPolylinePoint.x;
@@ -217,13 +260,10 @@ public abstract class Slicer {
         return futureMovement;
     }
 
-    public int getPolylinePointsPassed() {
-        return polylinePointsPassed;
-    }
 
     /**
      *
-     * Rotate the Enemy based on which direction it is moving and draw it on the frame
+     * Rotate the Slicer based on which direction it is moving and draw it on the frame
      *
      * @param whereToMove The point on the tilemap where the Enemy should move to
      */
@@ -271,20 +311,24 @@ public abstract class Slicer {
         }
     }
 
-
-    public int checkIfHit(List<Tower> currentTanks, List<Airplane> currentAirplanes){
-
+    /**
+     * Check if the slicer has been hit by an projectile or explosive
+     *
+     * @param currentTanks List of the current Tanks
+     * @param currentAirplanes List of the current Airplanes
+     * @return The Status of the slicer
+     */
+    public int checkIfHit(List<ActiveTower> currentTanks, List<Airplane> currentAirplanes){
 
         List<Projectile> toRemove = new ArrayList<>();
 
-        for(Tower s : currentTanks){
+        for(ActiveTower s : currentTanks){
 
             for(Projectile t : s.getCurrentProjectiles()){
 
                 if(boundingBox.intersects(t.getProjectileBoundingBox().centre())){
 
                     health = health - s.getDamage();
-                    System.out.println(health);
 
                     toRemove.add(t);
                     //s.getCurrentProjectiles().set(j,null);
@@ -294,13 +338,11 @@ public abstract class Slicer {
                         player.increaseMoney(reward);
                         s.getCurrentProjectiles().removeAll(toRemove);
                         return 3;
-
                     }
                 }
             }
             s.getCurrentProjectiles().removeAll(toRemove);
         }
-
 
         for(Airplane s : currentAirplanes){
             for(Explosive t : s.getCurrentExplosives()){
@@ -308,7 +350,6 @@ public abstract class Slicer {
                     if (t.getExplosionBounds().intersects(currentPosition)) {
 
                         health = health - t.getDamage();
-                        System.out.println(health);
 
 
                         if (health <= 0) {

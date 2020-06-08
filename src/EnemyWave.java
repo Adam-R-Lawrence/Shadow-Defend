@@ -6,23 +6,22 @@ import java.util.List;
 /**
  * @author arlawrence
  *
- * Enemy Wave Superclass
+ * Enemy Wave Class, To coordinate an Enemy Wave Level
  *
  */
 public class EnemyWave {
 
+    private final static int FRAMES_IN_A_SECOND = 60;
 
-
-    //To track how many frames since the wave has started
     private int frameCounter;
     private int numberOfEnemiesSpawned;
     private int numberOfEnemiesInWave = 0;
-    private final static int FRAMES_IN_A_SECOND = 60;
     private String enemyType;
     private int currentSpawnDelay;
 
-
-    //Enemy Wave constructor
+    /**
+     * Constructor for an Enemy Wave
+     */
     protected EnemyWave() {
 
         currentSpawnDelay = 0;
@@ -31,23 +30,27 @@ public class EnemyWave {
 
     }
 
-
-
-
-
-
-
-
+    /**
+     * Add a Spawn Wave Event
+     *
+     * @param waveEvent A spawn Wave Event
+     */
     public void addWaveEvent(WaveEvent waveEvent){
 
         numberOfEnemiesInWave = numberOfEnemiesInWave + waveEvent.getNumberToSpawn();
         enemyType = waveEvent.getEnemyType();
+        currentSpawnDelay = -1;
     }
 
+    /**
+     * Add a Delay Wave Event
+     *
+     * @param delay How long the Delay will be for
+     * @param timescaleMultiplier The current Timescale Of the Game
+     */
     public void addWaveEvent(int delay, int timescaleMultiplier){
         this.currentSpawnDelay = (int) ((delay * (60 / 1000.0))/timescaleMultiplier);
     }
-
 
     /**
      *
@@ -56,19 +59,16 @@ public class EnemyWave {
      * @param map The game's tilemap
      * @param timescaleMultiplier The current time multiplayer of the game
      */
-    public int nextWaveFrame(TiledMap map, int timescaleMultiplier, Player player, List<Tower> tanks, List<Airplane> airplanes, WaveEvent waveEvent, List<Slicer> enemiesInWave) {
+    public int nextWaveFrame(TiledMap map, int timescaleMultiplier, Player player, List<ActiveTower> tanks, List<Airplane> airplanes, WaveEvent waveEvent, List<Slicer> enemiesInWave) {
 
         int test = 0;
         //Check if its time to spawn in another enemy
         if(currentSpawnDelay <= 0) {
-            //System.out.println("WORKS NOW");
             for (int i = 0; i < timescaleMultiplier; i++) {
 
 
                 if ((frameCounter) % ((int) (FRAMES_IN_A_SECOND * (waveEvent.getSpawnDelay() / 1000.0)))
                         == 0 && numberOfEnemiesSpawned < numberOfEnemiesInWave) {
-
-                    //Spawn in a new enemy
 
 
                     //Determine which type of slicer to spawn
@@ -96,66 +96,60 @@ public class EnemyWave {
                 frameCounter++;
             }
         } else{
-            currentSpawnDelay--;
+            currentSpawnDelay = currentSpawnDelay - timescaleMultiplier;
             frameCounter = 0;
 
-            if(currentSpawnDelay == 0){
+            if(currentSpawnDelay <= 0){
                 test= 1;
+                currentSpawnDelay = -1;
             }
-           // System.out.println(String.format("Delay: %d",delay));
 
         }
-        //System.out.println(String.format("Frame COunter: %d",frameCounter));
-
 
         int waveStatus;
         //Update all the current Enemies
         for(int i = 0 ; i < enemiesInWave.size(); i++) {
-                if(enemiesInWave.get(i)!=null) {
+            if(enemiesInWave.get(i)!=null) {
 
-                    waveStatus = enemiesInWave.get(i).nextMove(timescaleMultiplier, i, numberOfEnemiesInWave, tanks, airplanes);
-                    if (waveStatus == 1) {
-                        return 2;
+                waveStatus = enemiesInWave.get(i).nextMove(timescaleMultiplier, i, numberOfEnemiesInWave, tanks, airplanes);
+                if (waveStatus == 1) {
+                    return 2;
+                }
+
+                if (waveStatus == 2) {
+                    enemiesInWave.set(i, null);
+                }
+
+                if (waveStatus == 3) {
+
+
+                    switch (enemiesInWave.get(i).getEnemyType()) {
+                        case "SuperSlicer":
+
+                            for (int j = 0; j < 2; j++) {
+                                enemiesInWave.add(new RegularSlicer(map.getAllPolylines().get(0), player, enemiesInWave.get(i).getWhereToMove(), enemiesInWave.get(i).getMovementsDone(), enemiesInWave.get(i).getPolylinePointsPassed()));
+                            }
+
+                            break;
+                        case "MegaSlicer":
+                            for (int j = 0; j < 2; j++) {
+                                enemiesInWave.add(new SuperSlicer(map.getAllPolylines().get(0), player, enemiesInWave.get(i).getWhereToMove(), enemiesInWave.get(i).getMovementsDone(), enemiesInWave.get(i).getPolylinePointsPassed()));
+                            }
+                            break;
+                        case "ApexSlicer":
+                            for (int j = 0; j < 4; j++) {
+                                enemiesInWave.add(new MegaSlicer(map.getAllPolylines().get(0), player, enemiesInWave.get(i).getWhereToMove(), enemiesInWave.get(i).getMovementsDone(), enemiesInWave.get(i).getPolylinePointsPassed()));
+                            }
+                            break;
                     }
 
-                    if (waveStatus == 2) {
-                        enemiesInWave.set(i, null);
-                    }
-
-                    if (waveStatus == 3) {
-
-
-                        switch (enemiesInWave.get(i).getEnemyType()) {
-                            case "SuperSlicer":
-
-                                for (int j = 0; j < 2; j++) {
-                                    enemiesInWave.add(new RegularSlicer(map.getAllPolylines().get(0), player, enemiesInWave.get(i).getWhereToMove(), enemiesInWave.get(i).getMovementsDone(), enemiesInWave.get(i).getPolylinePointsPassed()));
-                                }
-
-                                break;
-                            case "MegaSlicer":
-                                for (int j = 0; j < 2; j++) {
-                                    enemiesInWave.add(new SuperSlicer(map.getAllPolylines().get(0), player, enemiesInWave.get(i).getWhereToMove(), enemiesInWave.get(i).getMovementsDone(), enemiesInWave.get(i).getPolylinePointsPassed()));
-                                }
-                                break;
-                            case "ApexSlicer":
-                                for (int j = 0; j < 4; j++) {
-                                    enemiesInWave.add(new MegaSlicer(map.getAllPolylines().get(0), player, enemiesInWave.get(i).getWhereToMove(), enemiesInWave.get(i).getMovementsDone(), enemiesInWave.get(i).getPolylinePointsPassed()));
-                                }
-                                break;
-                        }
-
-
-                        enemiesInWave.set(i, null);
-
-
-                    }
+                    enemiesInWave.set(i, null);
 
                 }
+            }
         }
 
         enemiesInWave.removeAll(Collections.singleton(null));
-
 
         if ((enemiesInWave.size() == 0) &&  (numberOfEnemiesInWave == numberOfEnemiesSpawned)) {
             return 2;

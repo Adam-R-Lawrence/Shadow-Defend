@@ -3,13 +3,28 @@ import bagel.Font;
 import bagel.Image;
 import bagel.Window;
 import bagel.util.Colour;
+import bagel.util.Point;
+import bagel.util.Rectangle;
 
+/**
+ * Class for the Status Panel
+ */
 public class StatusPanel {
     private static final Image STATUS_PANEL = new Image("res/images/statuspanel.png");
     private static final int FONT_SIZE = 20;
     private static final Font FONT = new Font("res/fonts/DejaVuSans-Bold.ttf", FONT_SIZE);
+    private static final Rectangle STATUS_PANEL_BOUNDING_BOX = new Rectangle(STATUS_PANEL.getBoundingBoxAt(new Point(Window.getWidth()/2.0, Window.getHeight() - 12.5)));
 
     /**
+     *
+     * @return Rectangle of the Status Panel
+     */
+    public static Rectangle getStatusPanelBoundingBox() {
+        return STATUS_PANEL_BOUNDING_BOX;
+    }
+
+    /**
+     * Update the Status Panel
      *
      * @param player The player's current information
      * @param currentWave What Wave the player is currently on

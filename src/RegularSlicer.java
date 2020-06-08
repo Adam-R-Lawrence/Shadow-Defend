@@ -5,8 +5,8 @@ import java.util.List;
 /**
  * @author arlawrence
  *
- * Subclass of Enemy Superclass
- * This creates a Slicer Enemy
+ * Subclass of Slicer Superclass
+ * This creates the Regular Slicer Enemy
  *
  */
 public class RegularSlicer extends Slicer {
@@ -19,13 +19,28 @@ public class RegularSlicer extends Slicer {
     private final static int NUMBER_SLICERS_SPAWNED_ON_DEATH = 0;
     private final static int SLICER_HIERARCHY = 1;
 
+    /**
+     * Constructor for an Regular Slicer
+     *
+     * @param polyline The polyline for the slicer to follow around the map
+     * @param player The current player
+     */
     public RegularSlicer(List<Point> polyline, Player player) {
         //Set the slicer position to its starting point
         super(polyline,SLICER_PNG, HEALTH, SPEED, REWARD, PENALTY, player);
     }
 
+    /**
+     * Constructor for an Regular Slicer when it has spawned from a Super Slicer
+     *
+     * @param polyline The polyline for the slicer to follow around the map
+     * @param player The current player
+     * @param whereParentDied The position where its' parent died
+     * @param movementsParentDid the amount of movements the parent did
+     * @param polylinePointsPassed The amount of polylines passed by it's parent
+     */
     public RegularSlicer(List<Point> polyline, Player player , Point whereParentDied, int movementsParentDid, int polylinePointsPassed) {
         //Set the slicer position to its starting point
-        super(polyline,SLICER_PNG, HEALTH, SPEED, REWARD, PENALTY, player, whereParentDied,movementsParentDid,polylinePointsPassed);
+        super(polyline,SLICER_PNG, HEALTH, SPEED, REWARD, PENALTY, player, whereParentDied, (int) (movementsParentDid * (1.5/SPEED)),polylinePointsPassed);
     }
 }

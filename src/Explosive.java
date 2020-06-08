@@ -2,32 +2,28 @@ import bagel.Image;
 import bagel.util.Colour;
 import bagel.util.Point;
 import bagel.util.Rectangle;
-
 import static bagel.Drawing.drawRectangle;
 
+/**
+ * Class for an explosive that is dropped by the Airplane
+ */
 public class Explosive {
+
     private static final Image EXPLOSIVE = new Image("res/images/explosive.png");
     private static final int BLAST_RADIUS = 200;
     private static final int DETONATE_TIMER = 2;
-
     private final static int EXPLOSIVE_DAMAGE = 500;
+
     private int frameCounter;
     private final Point pointToDrop;
     private int delete;
-
     private Rectangle explosionBounds;
 
-
-
-    public int getDamage() {
-        return EXPLOSIVE_DAMAGE;
-    }
-
-
-    public Rectangle getExplosionBounds() {
-        return explosionBounds;
-    }
-
+    /**
+     * Constructor for the Explosive
+     *
+     * @param pointToDrop Where the explosive is to drop
+     */
     public Explosive(Point pointToDrop){
         this.pointToDrop = pointToDrop;
 
@@ -36,6 +32,32 @@ public class Explosive {
         delete = 0;
     }
 
+    /**
+     * Getter for the Damage done by the explosive
+     *
+     * @return The Damage done by the explosive
+     */
+    public int getDamage() {
+        return EXPLOSIVE_DAMAGE;
+    }
+
+    /**
+     * Getter for the radius of the explosion
+     *
+     * @return The Rectangle indication the bounds of the Explosion
+     */
+    public Rectangle getExplosionBounds() {
+        return explosionBounds;
+    }
+
+
+
+    /**
+     * Method to update the Explosion
+     *
+     * @param timescaleMultiplier The current Timescale Of the Game
+     * @return If the Explosive has been detonated or not
+     */
     public int updateExplosion(int timescaleMultiplier){
 
         EXPLOSIVE.draw(pointToDrop.x,pointToDrop.y);
@@ -54,10 +76,8 @@ public class Explosive {
                 delete = 1;
             }
 
-
             frameCounter++;
         }
         return 0;
     }
-
 }

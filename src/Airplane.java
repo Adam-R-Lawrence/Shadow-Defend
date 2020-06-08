@@ -2,34 +2,46 @@ import bagel.DrawOptions;
 import bagel.Image;
 import bagel.Window;
 import bagel.util.Point;
-import bagel.util.Rectangle;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * Class for the Passive Tower, Airplane that travels across the map dropping explosives
+ */
 public class Airplane {
+
     private static final Image AIRPLANE = new Image("res/images/airsupport.png");
     private static final int PIXELS_PER_FRAME = 5;
-    private static String nextDirection = "Horizontally";
-    private final String currentDirection;
+    private static final int HORIZONTAL_DIRECTION = 0;
+    private static final int VERTICAL_DIRECTION = 1;
+    private static final int PRICE = 500;
+
+    private static int nextDirection = HORIZONTAL_DIRECTION;
+    private final int currentDirection;
     private double currentPositionX;
     private double currentPositionY;
     private int randomNumFrames = 0;
     private final List<Explosive> currentExplosives;
-    private static final int PRICE = 500;
 
+    /**
+     * Constructor for the Airplane
+     *
+     * @param whereToFly The Point where the Plane was placed
+     * @param player The current player to deduct the price of the Tower from
+     */
     public Airplane(Point whereToFly, Player player){
 
         player.decreaseMoney(PRICE);
         currentDirection = nextDirection;
         currentPositionX = whereToFly.x;
         currentPositionY = whereToFly.y;
-        if (nextDirection.equals("Horizontally")){
-            nextDirection = "Vertically";
+        if (nextDirection == HORIZONTAL_DIRECTION){
+            nextDirection = VERTICAL_DIRECTION ;
             currentPositionX = 0;
         } else{
-            nextDirection = "Horizontally";
+            nextDirection = HORIZONTAL_DIRECTION;
             currentPositionY = 0;
         }
 
@@ -37,18 +49,27 @@ public class Airplane {
         currentExplosives = new ArrayList<>();
     }
 
-
+    /**
+     * Getter for the current explosives that have been dropped by this airplane
+     *
+     * @return List of current explosives
+     */
     public List<Explosive> getCurrentExplosives() {
         return currentExplosives;
     }
 
-
+    /**
+     * Update the Airplane
+     *
+     * @param timescaleMultiplier The current Timescale Of the Game
+     * @return Whether the plane needs to be removed from the game, i.e. left the map & all explosives have exploded
+     */
     public int updateAirplane(int timescaleMultiplier){
         int status = 0;
         DrawOptions rotator = new DrawOptions();
 
         for(int i =0; i < timescaleMultiplier; i++) {
-            if (currentDirection.equals("Horizontally")) {
+            if (currentDirection == HORIZONTAL_DIRECTION) {
                 currentPositionX = currentPositionX + PIXELS_PER_FRAME;
             } else {
                 currentPositionY = currentPositionY + PIXELS_PER_FRAME;
@@ -64,9 +85,10 @@ public class Airplane {
                     currentExplosives.add(new Explosive(new Point(currentPositionX, currentPositionY)));
                 }
             }
+
         }
 
-        if (currentDirection.equals("Horizontally")){
+        if (currentDirection == HORIZONTAL_DIRECTION){
             AIRPLANE.draw(currentPositionX, currentPositionY, rotator.setRotation(Math.PI / 2));
         } else{
             AIRPLANE.draw(currentPositionX, currentPositionY, rotator.setRotation(Math.PI));
@@ -86,7 +108,7 @@ public class Airplane {
 
         currentExplosives.removeAll(Collections.singleton(null));
 
-        if( ((   (currentPositionX > Window.getWidth()) || (currentPositionX < 0) ) || (   (currentPositionY > Window.getHeight()) || (currentPositionY < 0)))  && currentExplosives.size() == 0){
+        if((((currentPositionX > Window.getWidth()) || (currentPositionX < 0) ) || (   (currentPositionY > Window.getHeight()) || (currentPositionY < 0)))  && currentExplosives.size() == 0){
             return 1;
         }
 
