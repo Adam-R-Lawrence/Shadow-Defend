@@ -14,6 +14,14 @@ public class StatusPanel {
     private static final int FONT_SIZE = 20;
     private static final Font FONT = new Font("res/fonts/DejaVuSans-Bold.ttf", FONT_SIZE);
     private static final Rectangle STATUS_PANEL_BOUNDING_BOX = new Rectangle(STATUS_PANEL.getBoundingBoxAt(new Point(Window.getWidth()/2.0, Window.getHeight() - 12.5)));
+    private static final int DEFAULT_TIMESCALE = 1;
+    private static final double STATUS_PANEL_POSITION_X = Window.getWidth()/2.0;
+    private static final double STATUS_PANEL_POSITION_Y = Window.getHeight() - 12.5;
+    private static final double TEXT_POSITION_Y = Window.getHeight()-6.25;
+    private static final double WAVE_INFO_POSITION_X = 10;
+    private static final double TIMESCALE_INFO_POSITION_X = 200;
+    private static final double STATUS_INFO_POSITION_X = 500;
+    private static final double LIVES_INFO_POSITION_X = 920;
 
     /**
      *
@@ -35,20 +43,20 @@ public class StatusPanel {
         String text;
         Colour timescaleMultiplierColour;
         DrawOptions textColour = new DrawOptions();
-        STATUS_PANEL.draw(Window.getWidth()/2.0, Window.getHeight() - 12.5);
+        STATUS_PANEL.draw(STATUS_PANEL_POSITION_X, STATUS_PANEL_POSITION_Y);
 
         //Display the current wave
         text  = String.format("Wave: %d", currentWave);
-        FONT.drawString(text,10, Window.getHeight()-6.25);
+        FONT.drawString(text,WAVE_INFO_POSITION_X, TEXT_POSITION_Y);
 
         //Display the current timescale, if timescale has been increase, draw it in green
-        if (timescaleMultiplier > 1){
+        if (timescaleMultiplier > DEFAULT_TIMESCALE) {
             timescaleMultiplierColour = Colour.GREEN;
         } else {
             timescaleMultiplierColour = Colour.WHITE;
         }
         text  = String.format("Time Scale: %d.0", timescaleMultiplier);
-        FONT.drawString(text,200,Window.getHeight()-6.25, textColour.setBlendColour(timescaleMultiplierColour));
+        FONT.drawString(text,TIMESCALE_INFO_POSITION_X,TEXT_POSITION_Y, textColour.setBlendColour(timescaleMultiplierColour));
 
         /*
          * Display the Status of the game, one of 4 options:
@@ -58,10 +66,10 @@ public class StatusPanel {
          * "Awaiting Start" - The game is awaiting the player to press 'S' to begin a new wave
          */
         text = String.format("Status: %s",currentStatus);
-        FONT.drawString(text,500,Window.getHeight()-6.25);
+        FONT.drawString(text,STATUS_INFO_POSITION_X,TEXT_POSITION_Y);
 
         //Display the current amount of lives that the player has remaining
-        text = String.format("Lives: %d", player.getLives());
-        FONT.drawString(text,920,Window.getHeight()-6.25);
+        text = String.format("Lives: %d", player.getCurrentLives());
+        FONT.drawString(text,LIVES_INFO_POSITION_X,TEXT_POSITION_Y);
     }
 }

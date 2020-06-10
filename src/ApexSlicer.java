@@ -16,8 +16,6 @@ public class ApexSlicer extends Slicer {
     private final static double SPEED = 0.75;
     private final static int REWARD = 150;
     private final static int PENALTY = 16;
-    private final static int NUMBER_SLICERS_SPAWNED_ON_DEATH = 4;
-    private final static int SLICER_HIERARCHY = 4;
 
     /**
      * Constructor for an Apex Slicer

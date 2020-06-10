@@ -12,34 +12,34 @@ import java.util.List;
 public class EnemyWave {
 
     private final static int FRAMES_IN_A_SECOND = 60;
+    private final static int MILLISECONDS_IN_A_SECOND = 1000;
+    private final static int NO_SPAWN_DELAY = -1;
+    private final static int WAVE_EVENT_NOT_FINISHED_SPAWNING = 0;
+    private final static int WAVE_EVENT_FINISHED_SPAWNING = 1;
+    private final static int ALL_SLICERS_HAVE_DIED_OR_REACHED_END = 2;
+    private final static int FINAL_SLICER_TO_REACH_END = 1;
+    private final static int SLICER_HAS_REACHED_THE_END = 2;
+    private final static int SLICER_HAS_DIED = 3;
+    private final static int NUMBER_OF_CHILDREN_APEX_SLICER = 4;
+    private final static int NUMBER_OF_CHILDREN_MEGA_SLICER = 2;
+    private final static int NUMBER_OF_CHILDREN_SUPER_SLICER = 2;
 
-    private int frameCounter;
-    private int numberOfEnemiesSpawned;
+    private int frameCounter = 0;
+    private int numberOfEnemiesSpawned = 0;
     private int numberOfEnemiesInWave = 0;
+    private int currentSpawnDelay = 0;
     private String enemyType;
-    private int currentSpawnDelay;
-
-    /**
-     * Constructor for an Enemy Wave
-     */
-    protected EnemyWave() {
-
-        currentSpawnDelay = 0;
-        frameCounter = 0;
-        numberOfEnemiesSpawned = 0;
-
-    }
 
     /**
      * Add a Spawn Wave Event
      *
      * @param waveEvent A spawn Wave Event
      */
-    public void addWaveEvent(WaveEvent waveEvent){
+    public void addWaveEvent(WaveEvent waveEvent) {
 
         numberOfEnemiesInWave = numberOfEnemiesInWave + waveEvent.getNumberToSpawn();
         enemyType = waveEvent.getEnemyType();
-        currentSpawnDelay = -1;
+        currentSpawnDelay = NO_SPAWN_DELAY;
     }
 
     /**
@@ -48,8 +48,8 @@ public class EnemyWave {
      * @param delay How long the Delay will be for
      * @param timescaleMultiplier The current Timescale Of the Game
      */
-    public void addWaveEvent(int delay, int timescaleMultiplier){
-        this.currentSpawnDelay = (int) ((delay * (60 / 1000.0))/timescaleMultiplier);
+    public void addWaveEvent(int delay, int timescaleMultiplier) {
+        this.currentSpawnDelay = (int) ((delay * (1.0 * FRAMES_IN_A_SECOND/MILLISECONDS_IN_A_SECOND))/timescaleMultiplier);
     }
 
     /**
@@ -61,15 +61,14 @@ public class EnemyWave {
      */
     public int nextWaveFrame(TiledMap map, int timescaleMultiplier, Player player, List<ActiveTower> tanks, List<Airplane> airplanes, WaveEvent waveEvent, List<Slicer> enemiesInWave) {
 
-        int test = 0;
+        int statusOfWaveEvent = WAVE_EVENT_NOT_FINISHED_SPAWNING;
+
         //Check if its time to spawn in another enemy
         if(currentSpawnDelay <= 0) {
             for (int i = 0; i < timescaleMultiplier; i++) {
 
-
-                if ((frameCounter) % ((int) (FRAMES_IN_A_SECOND * (waveEvent.getSpawnDelay() / 1000.0)))
+                if ((frameCounter) % ((int) (FRAMES_IN_A_SECOND * (1.0 * waveEvent.getSpawnDelay() /MILLISECONDS_IN_A_SECOND)))
                         == 0 && numberOfEnemiesSpawned < numberOfEnemiesInWave) {
-
 
                     //Determine which type of slicer to spawn
                     if (enemyType.equals("slicer")) {
@@ -87,10 +86,9 @@ public class EnemyWave {
 
                     numberOfEnemiesSpawned++;
 
-
                     if (numberOfEnemiesSpawned == numberOfEnemiesInWave) {
 
-                        test = 1;
+                        statusOfWaveEvent = WAVE_EVENT_FINISHED_SPAWNING;
                     }
                 }
                 frameCounter++;
@@ -99,9 +97,9 @@ public class EnemyWave {
             currentSpawnDelay = currentSpawnDelay - timescaleMultiplier;
             frameCounter = 0;
 
-            if(currentSpawnDelay <= 0){
-                test= 1;
-                currentSpawnDelay = -1;
+            if(currentSpawnDelay <= 0) {
+                statusOfWaveEvent = WAVE_EVENT_FINISHED_SPAWNING;
+                currentSpawnDelay = NO_SPAWN_DELAY;
             }
 
         }
@@ -109,42 +107,41 @@ public class EnemyWave {
         int waveStatus;
         //Update all the current Enemies
         for(int i = 0 ; i < enemiesInWave.size(); i++) {
-            if(enemiesInWave.get(i)!=null) {
+            if(enemiesInWave.get(i) != null) {
 
                 waveStatus = enemiesInWave.get(i).nextMove(timescaleMultiplier, i, numberOfEnemiesInWave, tanks, airplanes);
-                if (waveStatus == 1) {
-                    return 2;
+
+                //If this is the final slicer, and has reached the end
+                if (waveStatus == FINAL_SLICER_TO_REACH_END) {
+                    return ALL_SLICERS_HAVE_DIED_OR_REACHED_END;
                 }
 
-                if (waveStatus == 2) {
+                //If slicer has reached the end of the polyline, remove it from the game
+                if (waveStatus == SLICER_HAS_REACHED_THE_END) {
                     enemiesInWave.set(i, null);
                 }
 
-                if (waveStatus == 3) {
-
+                //If slicer has died, spawn it's child if applicable
+                if (waveStatus == SLICER_HAS_DIED) {
 
                     switch (enemiesInWave.get(i).getEnemyType()) {
                         case "SuperSlicer":
-
-                            for (int j = 0; j < 2; j++) {
+                            for (int j = 0; j < NUMBER_OF_CHILDREN_SUPER_SLICER; j++) {
                                 enemiesInWave.add(new RegularSlicer(map.getAllPolylines().get(0), player, enemiesInWave.get(i).getWhereToMove(), enemiesInWave.get(i).getMovementsDone(), enemiesInWave.get(i).getPolylinePointsPassed()));
                             }
-
                             break;
                         case "MegaSlicer":
-                            for (int j = 0; j < 2; j++) {
+                            for (int j = 0; j < NUMBER_OF_CHILDREN_MEGA_SLICER; j++) {
                                 enemiesInWave.add(new SuperSlicer(map.getAllPolylines().get(0), player, enemiesInWave.get(i).getWhereToMove(), enemiesInWave.get(i).getMovementsDone(), enemiesInWave.get(i).getPolylinePointsPassed()));
                             }
                             break;
                         case "ApexSlicer":
-                            for (int j = 0; j < 4; j++) {
+                            for (int j = 0; j < NUMBER_OF_CHILDREN_APEX_SLICER; j++) {
                                 enemiesInWave.add(new MegaSlicer(map.getAllPolylines().get(0), player, enemiesInWave.get(i).getWhereToMove(), enemiesInWave.get(i).getMovementsDone(), enemiesInWave.get(i).getPolylinePointsPassed()));
                             }
                             break;
                     }
-
                     enemiesInWave.set(i, null);
-
                 }
             }
         }
@@ -152,8 +149,9 @@ public class EnemyWave {
         enemiesInWave.removeAll(Collections.singleton(null));
 
         if ((enemiesInWave.size() == 0) &&  (numberOfEnemiesInWave == numberOfEnemiesSpawned)) {
-            return 2;
+            return ALL_SLICERS_HAVE_DIED_OR_REACHED_END;
         }
-        return test;
+
+        return statusOfWaveEvent;
     }
 }

@@ -9,24 +9,16 @@ public class Player {
     private final static int STARTING_MONEY = 500;
     private final static int BASE_WAVE_REWARD = 150;
     private final static int CURRENT_WAVE_BONUS = 100;
-    private int lives;
-    private int money;
-
-    /**
-     * Constructor for th player, setting the initial values
-     */
-    public Player(){
-         lives = STARTING_LIVES;
-         money = STARTING_MONEY;
-    }
+    private int currentLives = STARTING_LIVES;
+    private int currentMoney = STARTING_MONEY;
 
     /**
      * Getter for how many lives the player has left
      *
      * @return The number of lives remaining
      */
-    public int getLives() {
-        return lives;
+    public int getCurrentLives() {
+        return currentLives;
     }
 
     /**
@@ -34,8 +26,8 @@ public class Player {
      *
      * @return The current amount of money
      */
-    public int getMoney() {
-        return money;
+    public int getCurrentMoney() {
+        return currentMoney;
     }
 
     /**
@@ -46,10 +38,10 @@ public class Player {
      * @param livesLost The amount of lives the player has lost
      */
     public void decreaseLives(int livesLost) {
-        lives = lives - livesLost;
+        currentLives = currentLives - livesLost;
 
         //Check if player has no remaining lives
-        if(lives == 0){
+        if(currentLives == 0) {
             //Close the Game
             Window.close();
         }
@@ -61,8 +53,8 @@ public class Player {
      *
      * @param waveJustFinished Wave number just completed
      */
-    public void endOfWaveReward(int waveJustFinished){
-        money = money + (BASE_WAVE_REWARD +(waveJustFinished * CURRENT_WAVE_BONUS));
+    public void endOfWaveReward(int waveJustFinished) {
+        currentMoney = currentMoney + (BASE_WAVE_REWARD + (waveJustFinished * CURRENT_WAVE_BONUS));
     }
 
     /**
@@ -71,7 +63,7 @@ public class Player {
      * @param moneyIncrease The amount of money gained
      */
     public void increaseMoney(int moneyIncrease) {
-        money = money + moneyIncrease;
+        currentMoney = currentMoney + moneyIncrease;
     }
 
     /**
@@ -80,6 +72,6 @@ public class Player {
      * @param moneyDecrease The amount of money lost
      */
     public void decreaseMoney(int moneyDecrease) {
-        money = money - moneyDecrease;
+        currentMoney = currentMoney - moneyDecrease;
     }
 }

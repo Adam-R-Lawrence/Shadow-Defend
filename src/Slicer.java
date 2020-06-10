@@ -13,12 +13,15 @@ import java.util.List;
  */
 public abstract class Slicer {
 
-
     private final static int FULL_CIRCLE_ANGLE = 360;
     private final static int EIGHTH_ANGLE = FULL_CIRCLE_ANGLE/8;
     private final static double SIXTEENTH_ANGLE = FULL_CIRCLE_ANGLE/16.0;
     private final static double RADIANS_CONVERTER = Math.PI/180;
     private final static Image SLICER = new Image("res/images/slicer.png");
+    private final static int SLICER_HAS_NOT_DIED = 0;
+    private final static int FINAL_SLICER_TO_REACH_END = 1;
+    private final static int SLICER_HAS_REACHED_THE_END = 2;
+    private final static int SLICER_HAS_DIED = 3;
 
     private final Image enemyPNG;
     private int polylinePointsPassed;
@@ -33,7 +36,6 @@ public abstract class Slicer {
     private final Player player;
     private final String enemyType;
     List<Point> polyline;
-
 
     /**
      * Constructor for a slicer
@@ -86,7 +88,6 @@ public abstract class Slicer {
         this.polyline = polyline;
         this.player = player;
         whereToMove = null;
-
 
         currentPosition = whereParentDied;
         movementsDone = movementsParentDid;
@@ -147,7 +148,6 @@ public abstract class Slicer {
         double xDistanceApart, yDistanceApart;
         double xMovementPerFrame, yMovementPerFrame;
 
-
         //Find the next place to move along the polyline, maximum of 1px
         for(int i = 0; i < timescaleMultiplier; i++) {
             if(polyline.size() != polylinePointsPassed) {
@@ -169,7 +169,6 @@ public abstract class Slicer {
                     whereToMove = new Point(currentPosition.x + xMovementPerFrame,
                             currentPosition.y + yMovementPerFrame);
 
-
                     movementsDone++;
                     currentPosition = whereToMove;
 
@@ -179,9 +178,6 @@ public abstract class Slicer {
                     movementsDone = 0;
                 }
 
-
-
-
                 if (i == (timescaleMultiplier - 1)) {
                     if (polyline.size() != polylinePointsPassed) {
                         rotateAndDraw(whereToMove);
@@ -189,22 +185,21 @@ public abstract class Slicer {
                 }
                 boundingBox = new Rectangle(SLICER.getBoundingBoxAt(currentPosition));
 
-                if(checkIfHit(tanks,airplanes) == 3){
-                    return 3;
+                if(checkIfHit(tanks,airplanes) == SLICER_HAS_DIED){
+                    return SLICER_HAS_DIED;
                 }
-
 
             } else {
 
                 player.decreaseLives(penalty);
                 //If all enemies have reached the end of the polyline, close the game
                 if (enemyNumber == numberOfEnemiesInWave - 1){
-                    return 1;
+                    return FINAL_SLICER_TO_REACH_END;
                 }
-                return 2;
+                return SLICER_HAS_REACHED_THE_END;
             }
         }
-        return 0;
+        return SLICER_HAS_NOT_DIED;
     }
 
     /**
@@ -246,7 +241,6 @@ public abstract class Slicer {
                     futureMovement = new Point(futurePosition.x + xMovementPerFrame,
                             futurePosition.y + yMovementPerFrame);
 
-
                     futureMovementsDone++;
                     futurePosition = futureMovement;
 
@@ -259,7 +253,6 @@ public abstract class Slicer {
         }
         return futureMovement;
     }
-
 
     /**
      *
@@ -281,7 +274,6 @@ public abstract class Slicer {
         double angle = Math.toDegrees(Math.atan2(displacementY, displacementX));
         angle = Math.abs((angle + Math.ceil( -angle / FULL_CIRCLE_ANGLE )
                 * FULL_CIRCLE_ANGLE) - FULL_CIRCLE_ANGLE);
-
 
         /*
         * The rotator logic works by splitting up a full circle into 8 distinct
@@ -331,13 +323,12 @@ public abstract class Slicer {
                     health = health - s.getDamage();
 
                     toRemove.add(t);
-                    //s.getCurrentProjectiles().set(j,null);
 
                     s.getCurrentProjectiles().removeAll(Collections.singleton(null));
                     if(health <= 0){
                         player.increaseMoney(reward);
                         s.getCurrentProjectiles().removeAll(toRemove);
-                        return 3;
+                        return SLICER_HAS_DIED;
                     }
                 }
             }
@@ -351,16 +342,14 @@ public abstract class Slicer {
 
                         health = health - t.getDamage();
 
-
                         if (health <= 0) {
                             player.increaseMoney(reward);
-                            return 3;
+                            return SLICER_HAS_DIED;
                         }
-
                     }
                 }
             }
         }
-        return 0;
+        return SLICER_HAS_NOT_DIED;
     }
 }

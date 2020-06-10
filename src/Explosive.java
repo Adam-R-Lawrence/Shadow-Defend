@@ -1,5 +1,4 @@
 import bagel.Image;
-import bagel.util.Colour;
 import bagel.util.Point;
 import bagel.util.Rectangle;
 import static bagel.Drawing.drawRectangle;
@@ -13,11 +12,12 @@ public class Explosive {
     private static final int BLAST_RADIUS = 200;
     private static final int DETONATE_TIMER = 2;
     private final static int EXPLOSIVE_DAMAGE = 500;
+    private final static int FRAMES_PER_SECOND = 60;
 
-    private int frameCounter;
+    private int explosionTimer = 0;
     private final Point pointToDrop;
-    private int delete;
-    private Rectangle explosionBounds;
+    private boolean hasExploded = false;
+    private Rectangle explosionBounds = null;
 
     /**
      * Constructor for the Explosive
@@ -26,10 +26,6 @@ public class Explosive {
      */
     public Explosive(Point pointToDrop){
         this.pointToDrop = pointToDrop;
-
-        explosionBounds = null;
-        frameCounter = 0;
-        delete = 0;
     }
 
     /**
@@ -50,34 +46,29 @@ public class Explosive {
         return explosionBounds;
     }
 
-
-
     /**
      * Method to update the Explosion
      *
      * @param timescaleMultiplier The current Timescale Of the Game
-     * @return If the Explosive has been detonated or not
+     * @return If the Explosive has exploded or not
      */
-    public int updateExplosion(int timescaleMultiplier){
+    public boolean updateExplosion(int timescaleMultiplier) {
 
         EXPLOSIVE.draw(pointToDrop.x,pointToDrop.y);
 
-        for(int i = 0; i< timescaleMultiplier; i++) {
-            if (delete == 1) {
-                return 1;
+        for(int i = 0; i < timescaleMultiplier; i++) {
+            if (hasExploded) {
+                return true;
             }
-            if (frameCounter == DETONATE_TIMER * 60) {
+            if (explosionTimer == DETONATE_TIMER * FRAMES_PER_SECOND) {
+                //The Explosion has gone off
                 explosionBounds = new Rectangle(pointToDrop.x - BLAST_RADIUS, pointToDrop.y - BLAST_RADIUS, 2 * BLAST_RADIUS, 2 * BLAST_RADIUS);
-
-                drawRectangle(pointToDrop.x - 200, pointToDrop.y - 200, 400, 400, Colour.WHITE);
-
-
-                //return 1;
-                delete = 1;
+                hasExploded = true;
             }
-
-            frameCounter++;
+            explosionTimer++;
         }
-        return 0;
+
+        //Explosion has not exploded yet
+        return false;
     }
 }

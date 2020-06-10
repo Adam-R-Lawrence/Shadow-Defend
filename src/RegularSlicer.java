@@ -16,8 +16,7 @@ public class RegularSlicer extends Slicer {
     private final static double SPEED = 2;
     private final static int REWARD = 2;
     private final static int PENALTY = 1;
-    private final static int NUMBER_SLICERS_SPAWNED_ON_DEATH = 0;
-    private final static int SLICER_HIERARCHY = 1;
+    private final static double SPEED_FACTOR_OF_PARENT = 1.5;
 
     /**
      * Constructor for an Regular Slicer
@@ -41,6 +40,6 @@ public class RegularSlicer extends Slicer {
      */
     public RegularSlicer(List<Point> polyline, Player player , Point whereParentDied, int movementsParentDid, int polylinePointsPassed) {
         //Set the slicer position to its starting point
-        super(polyline,SLICER_PNG, HEALTH, SPEED, REWARD, PENALTY, player, whereParentDied, (int) (movementsParentDid * (1.5/SPEED)),polylinePointsPassed);
+        super(polyline,SLICER_PNG, HEALTH, SPEED, REWARD, PENALTY, player, whereParentDied, (int) (movementsParentDid * (SPEED_FACTOR_OF_PARENT /SPEED)),polylinePointsPassed);
     }
 }

@@ -20,7 +20,7 @@ public class SuperTank extends ActiveTower {
      * @param tankPosition The position where the Super Tank was Placed on The Map
      * @param player The current player to decrease the cost of purchase from
      */
-    public SuperTank(Point tankPosition, Player player){
+    public SuperTank(Point tankPosition, Player player) {
         super(tankPosition,DAMAGE, ATTACK_RADIUS,PROJECTILE_COOLDOWN_FRAMES,TANK_IMAGE, SUPER_TANK_PROJECTILE);
         player.decreaseMoney(PRICE);
     }

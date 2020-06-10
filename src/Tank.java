@@ -10,8 +10,7 @@ public class Tank extends ActiveTower {
     private final static Image TANK_PROJECTILE = new Image("res/images/tank_projectile.png");
     private final static int DAMAGE = 1;
     private final static int ATTACK_RADIUS = 100;
-    private final static int PROJECTILE_COOLDOWN = 1000;
-    private final static int PROJECTILE_COOLDOWN_FRAMES = 60 * (PROJECTILE_COOLDOWN/1000);
+    private final static int PROJECTILE_COOLDOWN = 60;
     private final static int PRICE = 250;
 
     /**
@@ -20,8 +19,8 @@ public class Tank extends ActiveTower {
      * @param tankPosition The position where the Tank was Placed on The Map
      * @param player The current player to decrease the cost of purchase from
      */
-    public Tank(Point tankPosition, Player player){
-        super(tankPosition,DAMAGE, ATTACK_RADIUS,PROJECTILE_COOLDOWN_FRAMES,TANK_IMAGE, TANK_PROJECTILE);
+    public Tank(Point tankPosition, Player player) {
+        super(tankPosition,DAMAGE, ATTACK_RADIUS,PROJECTILE_COOLDOWN,TANK_IMAGE, TANK_PROJECTILE);
         player.decreaseMoney(PRICE);
 
     }

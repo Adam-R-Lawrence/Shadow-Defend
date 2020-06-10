@@ -3,11 +3,15 @@
  */
 public class WaveEvent {
 
+    private static final String SPAWN_EVENT = "SPAWN";
+    private static final String DELAY_EVENT = "DELAY";
+
     private final int waveNumber;
     private int numberToSpawn;
     private String enemyType;
     private final int spawnDelay;
     private final String eventType;
+
 
     /**
      * Constructor for a Spawn Type Wave Event
@@ -22,7 +26,7 @@ public class WaveEvent {
         this.numberToSpawn = numberToSpawn;
         this.enemyType = enemyType;
         this.spawnDelay = spawnDelay;
-        eventType = "spawn";
+        eventType = SPAWN_EVENT;
     }
 
     /**
@@ -34,7 +38,7 @@ public class WaveEvent {
     public WaveEvent(int waveNumber, int spawnDelay) {
         this.waveNumber = waveNumber;
         this.spawnDelay = spawnDelay;
-        eventType = "delay";
+        eventType = DELAY_EVENT;
     }
 
     /**

@@ -15,17 +15,29 @@ import java.util.Locale;
  * and the key bind instructions.
  */
 public class BuyPanel {
+
     private static final Image BUY_PANEL = new Image("res/images/buypanel.png");
     private static final Image TANK_IMAGE = new Image("res/images/tank.png");
     private static final Image SUPER_TANK_IMAGE = new Image("res/images/supertank.png");
     private static final Image AIRPLANE_IMAGE = new Image("res/images/airsupport.png");
     private static final Font CURRENT_MONEY_FONT = new Font("res/fonts/DejaVuSans-Bold.ttf",50);
     private static final Font TOWER_PRICE_FONT = new Font("res/fonts/DejaVuSans-Bold.ttf",20);
-    private static final Font INSTRUCTIONS_FONT = new Font("res/fonts/DejaVuSans-Bold.ttf",14);
+    private static final Font KEY_BINDS_FONT = new Font("res/fonts/DejaVuSans-Bold.ttf",14);
+    private static final int BUY_PANEL_POSITION_X = Window.getWidth()/2;
+    private static final int BUY_PANEL_POSITION_Y = 50;
+    private static final int KEY_BINDS_POSITION_X = Window.getWidth()/2;
+    private static final int KEY_BINDS_POSITION_Y = 25;
+    private static final int FIRST_TOWER_IMAGE_POSITION_X = 64;
+    private static final int DISTANCE_BETWEEN_TOWER_IMAGES = 120;
+    private static final int TOWER_IMAGE_POSITION_Y = 40;
+    private static final int FIRST_PRICE_POSITION_X = 36;
+    private static final int PRICE_POSITION_Y = 90;
+    private static final int CURRENT_MONEY_POSITION_X = Window.getWidth()-200;
+    private static final int CURRENT_MONEY_POSITION_Y = 65;
     private static final int TANK_PRICE = 250;
     private static final int SUPER_TANK_PRICE = 600;
     private static final int AIRPLANE_PRICE = 500;
-    private static final Rectangle BUY_PANEL_BOUNDING_BOX = new Rectangle(BUY_PANEL.getBoundingBoxAt(new Point(Window.getWidth()/2.0, 50)));
+    private static final Rectangle BUY_PANEL_BOUNDING_BOX = new Rectangle(BUY_PANEL.getBoundingBoxAt(new Point(BUY_PANEL_POSITION_X, BUY_PANEL_POSITION_Y)));
 
     /**
      * Getter for the Bounding Box of the Panel
@@ -48,76 +60,75 @@ public class BuyPanel {
         DrawOptions textColour = new DrawOptions();
         Colour fontColour;
 
-        BUY_PANEL.draw(Window.getWidth()/2.0, 50);
+        BUY_PANEL.draw(BUY_PANEL_POSITION_X, BUY_PANEL_POSITION_Y);
 
         //Display how much money the player currently has
         NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.UK);
-        CURRENT_MONEY_FONT.drawString(String.format("$%s",numberFormat.format(player.getMoney())),Window.getWidth()-200,65);
+        CURRENT_MONEY_FONT.drawString(String.format("$%s",numberFormat.format(player.getCurrentMoney())),CURRENT_MONEY_POSITION_X,CURRENT_MONEY_POSITION_Y);
 
-
-        TANK_IMAGE.draw(64, 40);
-        if(player.getMoney() < 250){
+        //Tank Tower
+        TANK_IMAGE.draw(FIRST_TOWER_IMAGE_POSITION_X, TOWER_IMAGE_POSITION_Y);
+        if(player.getCurrentMoney() < TANK_PRICE) {
             fontColour = Colour.RED;
-        }else{
+        } else {
             fontColour = Colour.GREEN;
         }
-        TOWER_PRICE_FONT.drawString(String.format("$%d",TANK_PRICE),36,50+40, textColour.setBlendColour(fontColour));
-        Rectangle tankBoundingBox = new Rectangle(TANK_IMAGE.getBoundingBoxAt(new Point(64,40)));
-        if(tankBoundingBox.intersects(mousePosition)){
-            if (wasLeftButtonPressed){
-                if(player.getMoney() >= TANK_PRICE){
-                    //Return the tower selected
+        TOWER_PRICE_FONT.drawString(String.format("$%d",TANK_PRICE),FIRST_PRICE_POSITION_X,PRICE_POSITION_Y, textColour.setBlendColour(fontColour));
+        Rectangle tankBoundingBox = new Rectangle(TANK_IMAGE.getBoundingBoxAt(new Point(FIRST_TOWER_IMAGE_POSITION_X,TOWER_IMAGE_POSITION_Y)));
+        if(tankBoundingBox.intersects(mousePosition)) {
+            if (wasLeftButtonPressed) {
+                if(player.getCurrentMoney() >= TANK_PRICE) {
+                    //Return tha TANK tower was selected
                     return "TANK";
                 }
             }
         }
 
-
-        SUPER_TANK_IMAGE.draw(64 + 120, 40);
-        if(player.getMoney() < 600){
+        //Super Tank Tower
+        SUPER_TANK_IMAGE.draw(FIRST_TOWER_IMAGE_POSITION_X + DISTANCE_BETWEEN_TOWER_IMAGES, TOWER_IMAGE_POSITION_Y);
+        if(player.getCurrentMoney() < SUPER_TANK_PRICE) {
             fontColour = Colour.RED;
-        }else{
+        } else {
             fontColour = Colour.GREEN;
         }
-        TOWER_PRICE_FONT.drawString(String.format("$%d",SUPER_TANK_PRICE),36+120,50+40, textColour.setBlendColour(fontColour));
-        Rectangle superTankBoundingBox = new Rectangle(SUPER_TANK_IMAGE.getBoundingBoxAt(new Point(64+120,40)));
-        if(superTankBoundingBox.intersects(mousePosition)){
-            if (wasLeftButtonPressed){
-                if(player.getMoney() >= SUPER_TANK_PRICE){
-                    //Return the tower selected
+        TOWER_PRICE_FONT.drawString(String.format("$%d",SUPER_TANK_PRICE),FIRST_PRICE_POSITION_X + DISTANCE_BETWEEN_TOWER_IMAGES,PRICE_POSITION_Y, textColour.setBlendColour(fontColour));
+        Rectangle superTankBoundingBox = new Rectangle(SUPER_TANK_IMAGE.getBoundingBoxAt(new Point(FIRST_TOWER_IMAGE_POSITION_X+DISTANCE_BETWEEN_TOWER_IMAGES,TOWER_IMAGE_POSITION_Y)));
+        if(superTankBoundingBox.intersects(mousePosition)) {
+            if (wasLeftButtonPressed) {
+                if(player.getCurrentMoney() >= SUPER_TANK_PRICE) {
+                    //Return tha SUPER TANK tower was selected
                     return "SUPER TANK";
                 }
             }
         }
 
-
-        AIRPLANE_IMAGE.draw(64 + 240, 40);
-
-        if(player.getMoney() < 500){
+        //Airplane Tower
+        AIRPLANE_IMAGE.draw(FIRST_TOWER_IMAGE_POSITION_X + 2 * DISTANCE_BETWEEN_TOWER_IMAGES, TOWER_IMAGE_POSITION_Y);
+        if(player.getCurrentMoney() < AIRPLANE_PRICE) {
             fontColour = Colour.RED;
-        }else{
+        } else {
             fontColour = Colour.GREEN;
         }
-        TOWER_PRICE_FONT.drawString(String.format("$%d",AIRPLANE_PRICE),36+240,50+40, textColour.setBlendColour(fontColour));
-        Rectangle airplaneBoundingBox = new Rectangle(AIRPLANE_IMAGE.getBoundingBoxAt(new Point(64+240,40)));
-        if(airplaneBoundingBox.intersects(mousePosition)){
-            if (wasLeftButtonPressed){
-                if(player.getMoney() >= AIRPLANE_PRICE){
-                    //Return the tower selected
+        TOWER_PRICE_FONT.drawString(String.format("$%d",AIRPLANE_PRICE),FIRST_PRICE_POSITION_X + 2 * DISTANCE_BETWEEN_TOWER_IMAGES,PRICE_POSITION_Y, textColour.setBlendColour(fontColour));
+        Rectangle airplaneBoundingBox = new Rectangle(AIRPLANE_IMAGE.getBoundingBoxAt(new Point(FIRST_TOWER_IMAGE_POSITION_X + 2 * DISTANCE_BETWEEN_TOWER_IMAGES,TOWER_IMAGE_POSITION_Y)));
+        if(airplaneBoundingBox.intersects(mousePosition)) {
+            if (wasLeftButtonPressed) {
+                if(player.getCurrentMoney() >= AIRPLANE_PRICE) {
+                    //Return tha AIRPLANE tower was selected
                     return "AIRPLANE";
                 }
             }
         }
 
-
         //Display the Key Bind instructions to the player
-        INSTRUCTIONS_FONT.drawString("Key binds:\n\nS - Start Wave\nL - Increase Timescale\nK - Decrease Timescale",Window.getWidth()/2.0,25);
+        KEY_BINDS_FONT.drawString("Key binds:\n\nS - Start Wave\nL - Increase Timescale\nK - Decrease Timescale",KEY_BINDS_POSITION_X,KEY_BINDS_POSITION_Y);
 
         return "NO TOWER SELECTED";
     }
 
-
     /**
+     *
+     * Method to place a tower on the map
      *
      * @param towerType The tower type which is currently being placed
      * @param mousePosition The current position of the mouse on the screen
@@ -128,43 +139,45 @@ public class BuyPanel {
      * @param player The Current Player and his stats
      * @return If the Tower has Been Placed
      */
-    public String placeTower(String towerType, Point mousePosition, boolean wasLeftButtonClicked, boolean wasRightButtonClicked, List<ActiveTower> currentTanks, List<Airplane> currentAirplanes, Player player){
+    public String placeTower(String towerType, Point mousePosition, boolean wasLeftButtonClicked, boolean wasRightButtonClicked, List<ActiveTower> currentTanks, List<Airplane> currentAirplanes, Player player) {
 
-        if(((mousePosition.x > Window.getWidth()) || (mousePosition.x < 0) ) || (   (mousePosition.y > Window.getHeight()) || (mousePosition.y < 0))){
-
-
+        if(((mousePosition.x > Window.getWidth()) || (mousePosition.x < 0) ) || (   (mousePosition.y > Window.getHeight()) || (mousePosition.y < 0))) {
             return towerType;
         }
 
-        if(wasRightButtonClicked){
+        //Deselect the current tower selected
+        if(wasRightButtonClicked) {
             return "NO TOWER SELECTED";
         }
 
-
-        if(towerType.equals("TANK")){
-            if(wasLeftButtonClicked){
+        //Check if the Tank was selected
+        if(towerType.equals("TANK")) {
+            if(wasLeftButtonClicked) {
                 currentTanks.add(new Tank(mousePosition,player));
                 return "NO TOWER SELECTED";
             }
             TANK_IMAGE.draw(mousePosition.x,mousePosition.y);
         }
-        if(towerType.equals("SUPER TANK")){
-            if(wasLeftButtonClicked){
+
+        //Check if the Super Tank was selected
+        if(towerType.equals("SUPER TANK")) {
+            if(wasLeftButtonClicked) {
                 currentTanks.add(new SuperTank(mousePosition,player));
                 return "NO TOWER SELECTED";
             }
             SUPER_TANK_IMAGE.draw(mousePosition.x,mousePosition.y);
-
         }
-        if(towerType.equals("AIRPLANE")){
-            if(wasLeftButtonClicked){
+
+        //Check if the Air Plane was selected
+        if(towerType.equals("AIRPLANE")) {
+            if(wasLeftButtonClicked) {
                 currentAirplanes.add(new Airplane(mousePosition,player));
                 return "NO TOWER SELECTED";
             }
             AIRPLANE_IMAGE.draw(mousePosition.x,mousePosition.y);
-
         }
 
+        //Tower has not been placed yet
         return towerType;
     }
 }

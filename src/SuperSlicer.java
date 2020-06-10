@@ -16,8 +16,7 @@ public class SuperSlicer extends Slicer {
     private final static double SPEED = 1.5;
     private final static int REWARD = 15;
     private final static int PENALTY = 2;
-    private final static int NUMBER_SLICERS_SPAWNED_ON_DEATH = 2;
-    private final static int SLICER_HIERARCHY = 2;
+
 
     /**
      * Constructor for an Super Slicer

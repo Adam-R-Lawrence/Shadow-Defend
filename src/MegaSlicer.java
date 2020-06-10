@@ -16,8 +16,7 @@ public class MegaSlicer extends Slicer {
     private final static double SPEED = 1.5;
     private final static int REWARD = 10;
     private final static int PENALTY = 4;
-    private final static int NUMBER_SLICERS_SPAWNED_ON_DEATH = 2;
-    private final static int SLICER_HIERARCHY = 3;
+    private final static double SPEED_FACTOR_OF_PARENT = 0.75;
 
     /**
      * Constructor for an Mega Slicer
@@ -41,6 +40,6 @@ public class MegaSlicer extends Slicer {
      */
     public MegaSlicer(List<Point> polyline, Player player , Point whereParentDied, int movementsParentDid, int polylinePointsPassed) {
         //Set the slicer position to its starting point
-        super(polyline,SLICER_PNG, HEALTH, SPEED, REWARD, PENALTY, player, whereParentDied,(int) (movementsParentDid * (0.75/SPEED)),polylinePointsPassed);
+        super(polyline,SLICER_PNG, HEALTH, SPEED, REWARD, PENALTY, player, whereParentDied,(int) (movementsParentDid * (SPEED_FACTOR_OF_PARENT /SPEED)),polylinePointsPassed);
     }
 }

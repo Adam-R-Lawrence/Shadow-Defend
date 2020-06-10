@@ -2,6 +2,8 @@ import bagel.Image;
 import bagel.util.Point;
 import bagel.util.Rectangle;
 
+import java.util.List;
+
 /**
  * Class for the projectile that the active towers shoot
  */
@@ -23,12 +25,11 @@ public class Projectile {
      * @param angleToShootAt The angle that the slicer is relevant to the Active Tower
      * @param projectileType The Type of Projectile which belongs to that specific Active Tower
      */
-    public Projectile(Point projectileSpawnPoint, double angleToShootAt, Image projectileType){
+    public Projectile(Point projectileSpawnPoint, double angleToShootAt, Image projectileType) {
         projectilePositionX = projectileSpawnPoint.x;
         projectilePositionY = projectileSpawnPoint.y;
         this.angleToShootAt = angleToShootAt;
         this.projectileType = projectileType;
-
 
         currentPosition = new Point(projectilePositionX,projectilePositionY);
         projectileBoundingBox = (projectileType.getBoundingBoxAt(currentPosition));
@@ -46,8 +47,7 @@ public class Projectile {
     /**
      * Method to update the projectile as it moves towards a slicer
      */
-    public void updateProjectile(){
-
+    public void updateProjectile() {
 
         projectilePositionX = (int) ((PROJECTILE_SPEED * Math.cos(Math.toRadians(angleToShootAt))) + projectilePositionX);
         projectilePositionY = (int) ((PROJECTILE_SPEED * Math.sin(Math.toRadians(angleToShootAt))) + projectilePositionY);
@@ -62,6 +62,5 @@ public class Projectile {
      */
     public void drawProjectile(){
         projectileType.draw(projectilePositionX,projectilePositionY);
-
     }
 }

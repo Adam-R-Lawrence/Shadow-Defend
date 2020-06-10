@@ -121,7 +121,7 @@ public class ShadowDefend extends AbstractGame {
         //Check if the mouse is over a invalid position for placing a tower
         boolean isMouseOverAnInvalidPosition = false;
         for(ActiveTower s: tanks){
-            if(s.getTankBoundingBox().intersects(currentMousePosition)){
+            if(s.getTowerBoundingBox().intersects(currentMousePosition)){
                 isMouseOverAnInvalidPosition = true;
                 break;
             }
@@ -173,7 +173,7 @@ public class ShadowDefend extends AbstractGame {
         if(currentWave != null){
 
             //If wave status is 0, do nothing
-            //If wave status is 1, that means all slicers have spawned
+            //If wave status is 1, that means all slicers have spawned for that Wave Event
             //If wave status is 2, that means all slicers of that wave event have either died or reached the end
             int waveStatus = currentWave.nextWaveFrame(gameMap, timescaleMultiplier, player, tanks, airplanes, currentWaveEvent,currentEnemies);
 
@@ -193,7 +193,7 @@ public class ShadowDefend extends AbstractGame {
                     currentWaveEvent = waveEvents.get(passedWaveEvents);
                     if (currentWaveEvent.getWaveNumber() == waveNumber) {
 
-                        if (currentWaveEvent.getEventType().equalsIgnoreCase("spawn")) {
+                        if (currentWaveEvent.getEventType().equals("SPAWN")) {
 
                             currentWave.addWaveEvent(currentWaveEvent);
                         } else {
@@ -230,16 +230,16 @@ public class ShadowDefend extends AbstractGame {
         //Update all Active Towers
         for (ActiveTower s : tanks) {
             if(isEnemyWave) {
-                s.updateTank(currentEnemies,timescaleMultiplier);
+                s.updateActiveTower(currentEnemies,timescaleMultiplier);
             }else {
-                s.updateStationaryTank();
+                s.updateStationaryActiveTower();
             }
         }
 
-        //Update all Airplanes, Remove them if they have flown off the screen
+        //Update all Airplanes, Remove them if they have flown off the screen and all explosions have exploded
         int i = 0;
         for(Airplane s : airplanes){
-            if(s.updateAirplane(timescaleMultiplier) == 1){
+            if(!s.updateAirplane(timescaleMultiplier)){
                 airplanes.set(i, null);
             }
             i++;
