@@ -3,7 +3,6 @@
 3,spawn,25,soldier,1000
 3,delay,5000
 3,spawn,18,supersoldier,1000
-3,delay,500 CHANGE TO SLICER
 4,spawn,35,soldier,500
 4,spawn,18,supersoldier,1000
 5,spawn,5,soldier,1000

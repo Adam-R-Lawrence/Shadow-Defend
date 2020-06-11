@@ -1,4 +1,5 @@
 import bagel.map.TiledMap;
+import org.lwjgl.system.CallbackI;
 
 import java.util.Collections;
 import java.util.List;
@@ -96,6 +97,7 @@ public class EnemyWave {
         } else{
             currentSpawnDelay = currentSpawnDelay - timescaleMultiplier;
             frameCounter = 0;
+            System.out.println(currentSpawnDelay);
 
             if(currentSpawnDelay <= 0) {
                 statusOfWaveEvent = WAVE_EVENT_FINISHED_SPAWNING;
@@ -148,7 +150,7 @@ public class EnemyWave {
 
         enemiesInWave.removeAll(Collections.singleton(null));
 
-        if ((enemiesInWave.size() == 0) &&  (numberOfEnemiesInWave == numberOfEnemiesSpawned)) {
+        if ((enemiesInWave.size() == 0) &&  (numberOfEnemiesInWave == numberOfEnemiesSpawned) && (currentSpawnDelay == NO_SPAWN_DELAY)) {
             return ALL_SLICERS_HAVE_DIED_OR_REACHED_END;
         }
 

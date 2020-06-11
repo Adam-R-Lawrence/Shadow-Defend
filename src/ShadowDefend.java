@@ -19,8 +19,6 @@ public class ShadowDefend extends AbstractGame {
     private static final int HEIGHT = 768;
     private static final int WIDTH = 1024;
     private static final String TITLE = "ShadowDefend";
-    private static final String TMX_FILE = "res/levels/1.tmx";
-    private TiledMap gameMap = new TiledMap(TMX_FILE);
     private static final String WAVE_EVENT_FILE = "res/levels/waves.txt";
     private static final String WINNER_STATUS = "Winner!";
     private static final String PLACING_STATUS = "Placing";
@@ -28,22 +26,23 @@ public class ShadowDefend extends AbstractGame {
     private static final String AWAITING_START_STATUS = "Awaiting Start";
 
     //instance variables
+    private TiledMap gameMap;
     private final BuyPanel buyPanel = new BuyPanel();
     private final StatusPanel statusPanel = new StatusPanel();
     private Player player = new Player();
-    private final List<Airplane> airplanes = new ArrayList<>();
-    private final List<ActiveTower> tanks = new ArrayList<>();
+    private List<Airplane> airplanes = new ArrayList<>();
+    private List<ActiveTower> tanks = new ArrayList<>();
     private final List<WaveEvent> waveEvents;
     private final List<Slicer>  currentEnemies = new ArrayList<>();
-    private int timescaleMultiplier = 1;
+    private int timescaleMultiplier;
     private int waveNumber;
-    private int passedWaveEvents = 0;
-    private boolean isEnemyWave = false;
+    private int passedWaveEvents;
+    private boolean isEnemyWave;
     private String towerBeingPlaced= "NO TOWER SELECTED";
     private WaveEvent currentWaveEvent;
-    private EnemyWave currentWave = null;
-    private String currentStatus = AWAITING_START_STATUS;
-    private int currentLevelNumber =1;
+    private EnemyWave currentWave;
+    private String currentStatus;
+    private int currentLevelNumber = 0;
 
 
     /**
@@ -88,8 +87,7 @@ public class ShadowDefend extends AbstractGame {
             i++;
         }
 
-        currentWaveEvent = waveEvents.get(0);
-        waveNumber = currentWaveEvent.getWaveNumber();
+        nextLevel();
     }
 
     public static void main(String[] args) {
@@ -152,7 +150,12 @@ public class ShadowDefend extends AbstractGame {
         //If 'S' is pressed start a new enemy wave
         if (input.wasPressed(Keys.S) && !isEnemyWave) {
             currentWave = new EnemyWave();
-            currentWave.addWaveEvent(currentWaveEvent);
+            if (currentWaveEvent.getEventType().equals("SPAWN")) {
+
+                currentWave.addWaveEvent(currentWaveEvent);
+            } else {
+                currentWave.addWaveEvent(currentWaveEvent.getSpawnDelay(), timescaleMultiplier);
+            }
             isEnemyWave = true;
             waveNumber = currentWaveEvent.getWaveNumber();
         }
@@ -177,14 +180,15 @@ public class ShadowDefend extends AbstractGame {
             //If wave status is 2, that means all slicers of that wave event have either died or reached the end
             int waveStatus = currentWave.nextWaveFrame(gameMap, timescaleMultiplier, player, tanks, airplanes, currentWaveEvent,currentEnemies);
 
-            if(passedWaveEvents == waveEvents.size()){
+            if(passedWaveEvents == waveEvents.size() || (waveStatus == 2 && waveEvents.size() == 1) ){
+
                 if(waveStatus == 2){
                     passedWaveEvents++;
                     currentWave = null;
                     waveNumber++;
                 }
             }
-            else if(waveStatus == 1 || (waveStatus == 2 && waveEvents.get(passedWaveEvents + 1).getWaveNumber() == waveNumber)) {
+            else if(waveStatus == 1 || (waveStatus == 2 && waveEvents.get(passedWaveEvents).getWaveNumber() == waveNumber)) {
                 passedWaveEvents++;
 
                 //Spawn in the next Wave Event of this Current Wave
@@ -217,7 +221,6 @@ public class ShadowDefend extends AbstractGame {
                 } else {
                     player.endOfWaveReward(waveNumber);
                     isEnemyWave = false;
-                    waveNumber = currentWaveEvent.getWaveNumber();
 
                     for (ActiveTower s : tanks) {
                         s.getCurrentProjectiles().clear();
@@ -270,8 +273,8 @@ public class ShadowDefend extends AbstractGame {
         currentWaveEvent = waveEvents.get(0);
         waveNumber = currentWaveEvent.getWaveNumber();
         currentStatus = AWAITING_START_STATUS;
-        airplanes.clear();
-        tanks.clear();
+        airplanes = new ArrayList<>();
+        tanks = new ArrayList<>();
         player = new Player();
         gameMap = new TiledMap(tmxFile);
     }

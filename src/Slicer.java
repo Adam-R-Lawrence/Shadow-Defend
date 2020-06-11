@@ -223,8 +223,9 @@ public abstract class Slicer {
         //Find the next place to move along the polyline, maximum of 1px
         for (int i = 0; i < timescaleMultiplier; i++) {
             if (polyline.size() != tempPolyLinesPassed) {
-                nextPolylinePoint = polyline.get(tempPolyLinesPassed);
                 currentPolylinePoint = polyline.get(tempPolyLinesPassed - 1);
+                nextPolylinePoint = polyline.get(tempPolyLinesPassed);
+
 
                 //Find the Magnitude and round it down to the nearest integer.
                 double magnitude = Math.sqrt(Math.pow(nextPolylinePoint.x - currentPolylinePoint.x, 2)
@@ -232,8 +233,8 @@ public abstract class Slicer {
                 int numberOfStepsNeeded = (int) ((Math.floor(magnitude)) / speed);
 
                 if (futureMovementsDone != numberOfStepsNeeded) {
-                    xDistanceApart = nextPolylinePoint.x - currentPolylinePoint.x;
                     yDistanceApart = nextPolylinePoint.y - currentPolylinePoint.y;
+                    xDistanceApart = nextPolylinePoint.x - currentPolylinePoint.x;
 
                     xMovementPerFrame = xDistanceApart / numberOfStepsNeeded;
                     yMovementPerFrame = yDistanceApart / numberOfStepsNeeded;
