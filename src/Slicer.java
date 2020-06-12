@@ -17,7 +17,6 @@ public abstract class Slicer {
     private final static int EIGHTH_ANGLE = FULL_CIRCLE_ANGLE/8;
     private final static double SIXTEENTH_ANGLE = FULL_CIRCLE_ANGLE/16.0;
     private final static double RADIANS_CONVERTER = Math.PI/180;
-    private final static Image SLICER = new Image("res/images/slicer.png");
     private final static int SLICER_HAS_NOT_DIED = 0;
     private final static int FINAL_SLICER_TO_REACH_END = 1;
     private final static int SLICER_HAS_REACHED_THE_END = 2;
@@ -35,7 +34,8 @@ public abstract class Slicer {
     private Rectangle boundingBox;
     private final Player player;
     private final String enemyType;
-    List<Point> polyline;
+    private final List<Point> polyline;
+    private boolean isImmune = true;
 
     /**
      * Constructor for a slicer
@@ -183,10 +183,12 @@ public abstract class Slicer {
                         rotateAndDraw(whereToMove);
                     }
                 }
-                boundingBox = new Rectangle(SLICER.getBoundingBoxAt(currentPosition));
+                boundingBox = new Rectangle(enemyPNG.getBoundingBoxAt(currentPosition));
 
-                if(checkIfHit(tanks,airplanes) == SLICER_HAS_DIED){
-                    return SLICER_HAS_DIED;
+                if(!isImmune) {
+                    if (checkIfHit(tanks, airplanes) == SLICER_HAS_DIED) {
+                        return SLICER_HAS_DIED;
+                    }
                 }
 
             } else {
@@ -199,6 +201,8 @@ public abstract class Slicer {
                 return SLICER_HAS_REACHED_THE_END;
             }
         }
+
+        isImmune = false;
         return SLICER_HAS_NOT_DIED;
     }
 

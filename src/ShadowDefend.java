@@ -24,6 +24,10 @@ public class ShadowDefend extends AbstractGame {
     private static final String PLACING_STATUS = "Placing";
     private static final String WAVE_IN_PROGRESS_STATUS = "Wave In Progress";
     private static final String AWAITING_START_STATUS = "Awaiting Start";
+    private final static int WAVE_EVENT_FINISHED_SPAWNING = 1;
+    private final static int ALL_SLICERS_DESPAWNED = 2;
+    private final static int SPAWN_EVENT_NUMBER_OF_PARAMETERS = 5;
+    private final static int DEFAULT_MULTIPLIER = 1;
 
     //instance variables
     private TiledMap gameMap;
@@ -71,12 +75,13 @@ public class ShadowDefend extends AbstractGame {
             e.printStackTrace();
         }
         waveEvents = Arrays.asList(new WaveEvent[listOfWaveEvents.size()]);
+
         int i = 0;
         for(String s:listOfWaveEvents){
 
             String[] waveEventBreakdown = s.split(",");
 
-            if(waveEventBreakdown.length == 5){
+            if(waveEventBreakdown.length == SPAWN_EVENT_NUMBER_OF_PARAMETERS){
 
                 waveEvents.set(i, new WaveEvent(Integer.parseInt(waveEventBreakdown[0]), Integer.parseInt(waveEventBreakdown[2]), waveEventBreakdown[3], Integer.parseInt(waveEventBreakdown[4])));
 
@@ -87,6 +92,7 @@ public class ShadowDefend extends AbstractGame {
             i++;
         }
 
+        //Start the first level
         nextLevel();
     }
 
@@ -131,10 +137,23 @@ public class ShadowDefend extends AbstractGame {
             isMouseOverAnInvalidPosition = true;
         }
 
+
+
+        //Out Of Bounds Check
+        int fixedPositionX = (int) currentMousePosition.x;
+        int fixedPositionY = (int) currentMousePosition.y;
+        if(currentMousePosition.x >= WIDTH){
+            fixedPositionX = WIDTH - 1;
+        }
+        if(currentMousePosition.y >= HEIGHT){
+            fixedPositionY = HEIGHT - 1;
+
+        }
         //Update the placing tower mechanism
-        if(!towerBeingPlaced.equals("NO TOWER SELECTED")&& !gameMap.hasProperty((int) currentMousePosition.x,(int) currentMousePosition.y,"blocked")&& !isMouseOverAnInvalidPosition){
+        if(!isMouseOverAnInvalidPosition && !towerBeingPlaced.equals("NO TOWER SELECTED")&& !gameMap.hasProperty( fixedPositionX, fixedPositionY,"blocked")){
             towerBeingPlaced = buyPanel.placeTower(towerBeingPlaced, currentMousePosition, wasLeftKeyPressed, wasRightKeyPressed, tanks, airplanes, player);
         }
+
 
         //Update the Buy Panel (Return the tower selected)
         String towerSelected = buyPanel.updateBuyPanel(player, currentMousePosition, wasLeftKeyPressed);
@@ -167,28 +186,36 @@ public class ShadowDefend extends AbstractGame {
 
         //If 'K' is pressed decrease the Timescale by 1, but the Timescale cannot be less than 1
         if (input.wasPressed(Keys.K)) {
-            if (timescaleMultiplier != 1) {
+            if (timescaleMultiplier != DEFAULT_MULTIPLIER) {
                 timescaleMultiplier--;
             }
         }
 
+        //Update all Airplanes, Remove them if they have flown off the screen and all explosions have exploded
+        int i = 0;
+        for(Airplane s : airplanes){
+            if(!s.updateAirplane(timescaleMultiplier)){
+                airplanes.set(i, null);
+            }
+            i++;
+        }
+        airplanes.removeAll(Collections.singleton(null));
+
         //If there is a wave ongoing, update the contents of that wave
         if(currentWave != null){
 
-            //If wave status is 0, do nothing
-            //If wave status is 1, that means all slicers have spawned for that Wave Event
-            //If wave status is 2, that means all slicers of that wave event have either died or reached the end
+
             int waveStatus = currentWave.nextWaveFrame(gameMap, timescaleMultiplier, player, tanks, airplanes, currentWaveEvent,currentEnemies);
 
-            if(passedWaveEvents == waveEvents.size() || (waveStatus == 2 && waveEvents.size() == 1) ){
+            if(passedWaveEvents == waveEvents.size() || (waveStatus == ALL_SLICERS_DESPAWNED && waveEvents.size() == 1) ){
 
-                if(waveStatus == 2){
+                if(waveStatus == ALL_SLICERS_DESPAWNED){
                     passedWaveEvents++;
                     currentWave = null;
                     waveNumber++;
                 }
             }
-            else if(waveStatus == 1 || (waveStatus == 2 && waveEvents.get(passedWaveEvents).getWaveNumber() == waveNumber)) {
+            else if(waveStatus == WAVE_EVENT_FINISHED_SPAWNING || (waveStatus == ALL_SLICERS_DESPAWNED && waveEvents.get(passedWaveEvents).getWaveNumber() == waveNumber)) {
                 passedWaveEvents++;
 
                 //Spawn in the next Wave Event of this Current Wave
@@ -206,7 +233,7 @@ public class ShadowDefend extends AbstractGame {
                         }
                     }
                 }
-            } else if(waveStatus == 2){
+            } else if(waveStatus == ALL_SLICERS_DESPAWNED){
 
                 //All Wave Events have been completed (Slicers all Gone from all Wave Events)
                 currentWave = null;
@@ -222,6 +249,7 @@ public class ShadowDefend extends AbstractGame {
                     player.endOfWaveReward(waveNumber);
                     isEnemyWave = false;
 
+                    //Clear all left over projectiles
                     for (ActiveTower s : tanks) {
                         s.getCurrentProjectiles().clear();
                         s.getCurrentProjectiles().removeAll(Collections.singleton(null));
@@ -239,15 +267,8 @@ public class ShadowDefend extends AbstractGame {
             }
         }
 
-        //Update all Airplanes, Remove them if they have flown off the screen and all explosions have exploded
-        int i = 0;
-        for(Airplane s : airplanes){
-            if(!s.updateAirplane(timescaleMultiplier)){
-                airplanes.set(i, null);
-            }
-            i++;
-        }
-        airplanes.removeAll(Collections.singleton(null));
+        //Remove all explosives that have exploded
+        Airplane.removeHasExplodedExplosives(airplanes);
 
         //Update the Status Panel
         if(waveNumber > waveEvents.get(waveEvents.size()-1).getWaveNumber()){
@@ -256,7 +277,11 @@ public class ShadowDefend extends AbstractGame {
         statusPanel.updateStatusPanel(player, waveNumber, timescaleMultiplier, currentStatus);
     }
 
-    //Load the next level (If there is a next level)
+    /**
+     *  Load the next level (If there is a next level)
+     *  Reset the game state
+     *
+     */
     public void nextLevel(){
         currentLevelNumber++;
 
@@ -265,7 +290,7 @@ public class ShadowDefend extends AbstractGame {
             return;
         }
 
-        timescaleMultiplier = 1;
+        timescaleMultiplier = DEFAULT_MULTIPLIER;
         passedWaveEvents = 0;
         isEnemyWave = false;
         towerBeingPlaced= "NO TOWER SELECTED";

@@ -43,7 +43,7 @@ public class Player {
         //Check if player has no remaining lives
         if(currentLives == 0) {
             //Close the Game
-            //Window.close();
+            Window.close();
         }
     }
 

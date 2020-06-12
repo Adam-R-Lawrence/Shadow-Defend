@@ -105,14 +105,30 @@ public class Airplane {
             if(s!=null) {
                 hasExploded = s.updateExplosion(timescaleMultiplier);
             }
-            if(hasExploded) {
-                currentExplosives.set(i, null);
-            }
-            i++;
         }
         currentExplosives.removeAll(Collections.singleton(null));
 
         //Return if the airplane is still valid or not
         return (((!(currentPositionX > Window.getWidth())) && (!(currentPositionX < 0))) && ((!(currentPositionY > Window.getHeight())) && (!(currentPositionY < 0)))) || currentExplosives.size() != 0;
     }
+
+    /**
+     * Static Method to remove all explosives that have exploded
+     *
+     * @param airplanes List of airplanes that are currently on the map
+     */
+    public static void removeHasExplodedExplosives(List<Airplane> airplanes) {
+        for(Airplane s : airplanes) {
+            int i = 0;
+
+            for(Explosive t : s.getCurrentExplosives()) {
+                if(t.getExplosionBounds() != null) {
+                    s.getCurrentExplosives().set(i, null);
+                }
+                i++;
+            }
+            s.getCurrentExplosives().removeAll(Collections.singleton(null));
+        }
+    }
+
 }

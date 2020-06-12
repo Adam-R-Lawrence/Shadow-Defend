@@ -133,7 +133,6 @@ public abstract class ActiveTower {
             for (Projectile s : currentProjectiles) {
                 if (s != null) {
                     s.updateProjectile();
-
                 }
             }
         }
