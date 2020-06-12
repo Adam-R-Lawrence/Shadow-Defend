@@ -302,5 +302,6 @@ public class ShadowDefend extends AbstractGame {
         tanks = new ArrayList<>();
         player = new Player();
         gameMap = new TiledMap(tmxFile);
+        Airplane.resetDirection();
     }
 }

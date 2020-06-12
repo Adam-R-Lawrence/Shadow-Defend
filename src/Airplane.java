@@ -21,7 +21,7 @@ public class Airplane {
     private static final double FULL_ANGLE_RADIANS = Math.PI;
     private static final double HALF_ANGLE_RADIANS = Math.PI/2;
 
-    private static int nextDirection = HORIZONTAL_DIRECTION;
+    private static int nextDirection;
     private final int currentDirection;
     private double currentPositionX;
     private double currentPositionY;
@@ -67,7 +67,6 @@ public class Airplane {
      * @return Whether the plane needs to be removed from the game, i.e. left the map & all explosives have exploded
      */
     public boolean updateAirplane(int timescaleMultiplier) {
-        boolean hasExploded = false;
         DrawOptions rotator = new DrawOptions();
 
         for(int i =0; i < timescaleMultiplier; i++) {
@@ -100,10 +99,9 @@ public class Airplane {
         }
 
         //Update all current Explosions
-        int i = 0;
         for(Explosive s : currentExplosives) {
             if(s!=null) {
-                hasExploded = s.updateExplosion(timescaleMultiplier);
+                s.updateExplosion(timescaleMultiplier);
             }
         }
         currentExplosives.removeAll(Collections.singleton(null));
@@ -131,4 +129,10 @@ public class Airplane {
         }
     }
 
+    /**
+     * set the next direction to the default after a level starts
+     */
+    public static void resetDirection(){
+        nextDirection = HORIZONTAL_DIRECTION;
+    }
 }

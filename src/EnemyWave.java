@@ -97,7 +97,6 @@ public class EnemyWave {
         } else{
             currentSpawnDelay = currentSpawnDelay - timescaleMultiplier;
             frameCounter = 0;
-            System.out.println(currentSpawnDelay);
 
             if(currentSpawnDelay <= 0) {
                 statusOfWaveEvent = WAVE_EVENT_FINISHED_SPAWNING;

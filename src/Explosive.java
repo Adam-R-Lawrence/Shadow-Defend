@@ -50,15 +50,14 @@ public class Explosive {
      * Method to update the Explosion
      *
      * @param timescaleMultiplier The current Timescale Of the Game
-     * @return If the Explosive has exploded or not
      */
-    public boolean updateExplosion(int timescaleMultiplier) {
+    public void updateExplosion(int timescaleMultiplier) {
 
         EXPLOSIVE.draw(pointToDrop.x,pointToDrop.y);
 
         for(int i = 0; i < timescaleMultiplier; i++) {
             if (hasExploded) {
-                return true;
+                return;
             }
             if (explosionTimer == DETONATE_TIMER * FRAMES_PER_SECOND) {
                 //The Explosion has gone off
@@ -69,6 +68,6 @@ public class Explosive {
         }
 
         //Explosion has not exploded yet
-        return false;
+
     }
 }
