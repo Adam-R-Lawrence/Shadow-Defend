@@ -293,7 +293,7 @@ public class ShadowDefend extends AbstractGame {
         timescaleMultiplier = DEFAULT_MULTIPLIER;
         passedWaveEvents = 0;
         isEnemyWave = false;
-        towerBeingPlaced= "NO TOWER SELECTED";
+        towerBeingPlaced = "NO TOWER SELECTED";
         currentWave = null;
         currentWaveEvent = waveEvents.get(0);
         waveNumber = currentWaveEvent.getWaveNumber();
